@@ -1,0 +1,478 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasPanelAccess() {
+      return hasAdminDocAccess() || hasLegacyAdminProfile();
+    }
+
+    function hasAdminDocAccess() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/Admins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/Admins/$(request.auth.uid)).data.activo != false;
+    }
+
+    function hasLegacyAdminProfile() {
+      return signedIn() && (
+        (
+          exists(/databases/$(database)/documents/Usuarios/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)).data.perfil == 'Admin' ||
+            get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)).data.perfilActivo == 'Admin'
+          )
+        ) ||
+        (
+          exists(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/DatosPersonales/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/DatosPersonales/$(request.auth.uid)).data.perfil == 'Admin' ||
+            get(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/DatosPersonales/$(request.auth.uid)).data.perfilActivo == 'Admin'
+          )
+        ) ||
+        (
+          exists(/databases/$(database)/documents/Fleteros/$(request.auth.uid)) &&
+          (
+            get(/databases/$(database)/documents/Fleteros/$(request.auth.uid)).data.perfil == 'Admin' ||
+            get(/databases/$(database)/documents/Fleteros/$(request.auth.uid)).data.perfilActivo == 'Admin'
+          )
+        )
+      );
+    }
+
+    function panelRole() {
+      return get(/databases/$(database)/documents/Admins/$(request.auth.uid)).data.rol;
+    }
+
+    function isAdmin() {
+      return hasLegacyAdminProfile() || (hasAdminDocAccess() && (
+        !('rol' in get(/databases/$(database)/documents/Admins/$(request.auth.uid)).data) ||
+        panelRole() == 'Admin'
+      ));
+    }
+
+    function isVerificador() {
+      return hasAdminDocAccess() && panelRole() == 'Verificador';
+    }
+
+    function isSoporte() {
+      return hasAdminDocAccess() && panelRole() == 'Soporte';
+    }
+
+    function canReadUsuariosAdmin() {
+      return isAdmin() || isSoporte();
+    }
+
+    function canReadFleterosAdmin() {
+      return isAdmin() || isVerificador();
+    }
+
+    function canReadPedidosAdmin() {
+      return isAdmin() || isSoporte();
+    }
+
+    function isFletero() {
+      return signedIn() && exists(/databases/$(database)/documents/Fleteros/$(request.auth.uid));
+    }
+
+    function isUsuario() {
+      return signedIn() && (
+        exists(/databases/$(database)/documents/Usuarios/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/Usuarios/$(request.auth.uid)/DatosPersonales/$(request.auth.uid))
+      );
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function hasNoPasswordFields() {
+      return !('password' in request.resource.data)
+        && !('pass' in request.resource.data)
+        && !('contrasena' in request.resource.data)
+        && !('contraseña' in request.resource.data);
+    }
+
+    function hasNoAdminProfileOnCreate() {
+      return (!('perfil' in request.resource.data) || request.resource.data.perfil != 'Admin')
+        && (!('perfilActivo' in request.resource.data) || request.resource.data.perfilActivo != 'Admin')
+        && (!('rol' in request.resource.data) || request.resource.data.rol != 'Admin');
+    }
+
+    function hasNoPrivilegedProfileChange() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['perfil', 'perfilActivo', 'rol', 'permisos', 'activo']);
+    }
+
+    function isTripParticipant(userId, fleteroId) {
+      return isAdmin() || isSelf(userId) || isSelf(fleteroId);
+    }
+
+    function isChatParticipant(userId, fleteroId) {
+      return isAdmin() || isSelf(userId) || isSelf(fleteroId);
+    }
+
+    function chatParticipantFromResource() {
+      return signedIn() && (
+        request.auth.uid == request.resource.data.userId ||
+        request.auth.uid == request.resource.data.fleteroId ||
+        isAdmin() || isSoporte()
+      );
+    }
+
+    function chatParticipantFromStored() {
+      return signedIn() && (
+        request.auth.uid == resource.data.userId ||
+        request.auth.uid == resource.data.fleteroId ||
+        isAdmin() || isSoporte()
+      );
+    }
+
+    function chatParticipantFromParent(chatId) {
+      return signedIn() && (
+        isAdmin() || isSoporte() ||
+        request.auth.uid == get(/databases/$(database)/documents/chats/$(chatId)).data.userId ||
+        request.auth.uid == get(/databases/$(database)/documents/chats/$(chatId)).data.fleteroId
+      );
+    }
+
+    function validReviewPayload() {
+      return request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() > 0
+        && request.resource.data.fleteroId is string
+        && request.resource.data.fleteroId.size() > 0;
+    }
+
+    function requestPedidoMatchesFletero() {
+      return signedIn() && (
+        (request.resource.data.fleteroId is string && request.auth.uid == request.resource.data.fleteroId) ||
+        ('respuesta' in request.resource.data &&
+          request.resource.data.respuesta.idFletero is string &&
+          request.auth.uid == request.resource.data.respuesta.idFletero)
+      );
+    }
+
+    function storedPedidoMatchesFletero() {
+      return signedIn() && (
+        (resource.data.fleteroId is string && request.auth.uid == resource.data.fleteroId) ||
+        ('respuesta' in resource.data &&
+          resource.data.respuesta.idFletero is string &&
+          request.auth.uid == resource.data.respuesta.idFletero)
+      );
+    }
+
+    function requestFleteProcesoMatchesUser(fleteroId) {
+      return signedIn()
+        && request.resource.data.usuarioId is string
+        && request.resource.data.fleteroId is string
+        && request.resource.data.fleteroId == fleteroId
+        && request.auth.uid == request.resource.data.usuarioId;
+    }
+
+    function storedFleteProcesoMatchesUser() {
+      return signedIn()
+        && resource.data.usuarioId is string
+        && request.auth.uid == resource.data.usuarioId;
+    }
+
+    match /Admins/{adminId} {
+      allow read: if isAdmin() || isSelf(adminId);
+      allow create, update: if isAdmin() || (isSelf(adminId) && hasLegacyAdminProfile());
+      allow delete: if false;
+    }
+
+      match /Usuarios/{userId} {
+        allow read: if canReadUsuariosAdmin() || isSelf(userId);
+        allow create: if isSelf(userId) && hasNoPasswordFields() && hasNoAdminProfileOnCreate();
+        allow update: if (
+          isAdmin() || (isSelf(userId) && hasNoPrivilegedProfileChange())
+        ) && hasNoPasswordFields();
+        allow delete: if isAdmin();
+
+      match /DatosPersonales/{docId} {
+        allow read: if canReadUsuariosAdmin() || isSelf(userId);
+        allow create, update: if isAdmin() || (isSelf(userId) && docId == userId);
+        allow delete: if isAdmin();
+      }
+
+      match /Pedidos/{pedidoDoc} {
+        allow read: if isAdmin() || isSelf(userId) || isFletero();
+        allow create, update, delete: if isAdmin() || isSelf(userId);
+      }
+    }
+
+    match /PedirFlete/{userId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() || isSelf(userId);
+      allow delete: if isAdmin();
+
+      match /Pedidos/{pedidoDoc} {
+        allow read: if signedIn();
+        allow create, update, delete: if isAdmin() || isSelf(userId);
+
+        match /Respuesta/{fleteroId} {
+          allow read: if signedIn();
+          allow create, update: if isAdmin() || isSelf(fleteroId);
+          allow delete: if isAdmin() || isSelf(userId) || isSelf(fleteroId);
+        }
+      }
+
+      match /PedidosConfirmados/{pedidoDoc} {
+        allow read: if isAdmin() || isSelf(userId) || storedPedidoMatchesFletero();
+        allow create: if isAdmin() || isSelf(userId);
+        allow update: if isAdmin() || isSelf(userId) || requestPedidoMatchesFletero() || storedPedidoMatchesFletero();
+        allow delete: if isAdmin() || isSelf(userId) || storedPedidoMatchesFletero();
+      }
+
+      match /PedidosFinalizados/{pedidoDoc} {
+        allow read: if isAdmin() || isSelf(userId) || storedPedidoMatchesFletero() || isUsuario();
+        allow create, update: if isAdmin() || isSelf(userId) || requestPedidoMatchesFletero();
+        allow delete: if isAdmin() || isSelf(userId) || storedPedidoMatchesFletero();
+      }
+
+      match /PedidosCancelados/{pedidoDoc} {
+        allow read: if isAdmin() || isSelf(userId) || storedPedidoMatchesFletero();
+        allow create, update: if isAdmin() || isSelf(userId) || requestPedidoMatchesFletero();
+        allow delete: if isAdmin() || isSelf(userId) || storedPedidoMatchesFletero();
+      }
+
+      match /{pedidoCollection}/{pedidoDoc}/chats/{chatId} {
+        allow read: if chatParticipantFromStored();
+        allow create: if chatParticipantFromResource();
+        allow update: if chatParticipantFromStored() || chatParticipantFromResource();
+        allow delete: if isAdmin();
+
+        match /mensajes/{messageId} {
+          allow read: if signedIn() && (
+            isAdmin() ||
+            request.auth.uid == get(/databases/$(database)/documents/PedirFlete/$(userId)/$(pedidoCollection)/$(pedidoDoc)/chats/$(chatId)).data.userId ||
+            request.auth.uid == get(/databases/$(database)/documents/PedirFlete/$(userId)/$(pedidoCollection)/$(pedidoDoc)/chats/$(chatId)).data.fleteroId
+          );
+          allow create: if signedIn()
+            && request.resource.data.senderId == request.auth.uid
+            && request.resource.data.chatId == chatId
+            && request.resource.data.text is string
+            && request.resource.data.text.size() > 0
+            && request.resource.data.senderRole in ['user', 'fletero']
+            && (
+              isAdmin() ||
+              request.auth.uid == get(/databases/$(database)/documents/PedirFlete/$(userId)/$(pedidoCollection)/$(pedidoDoc)/chats/$(chatId)).data.userId ||
+              request.auth.uid == get(/databases/$(database)/documents/PedirFlete/$(userId)/$(pedidoCollection)/$(pedidoDoc)/chats/$(chatId)).data.fleteroId
+            );
+          allow update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.senderId);
+        }
+      }
+
+      match /PedidosFinalizados/{pedidoDoc}/reviews/{reviewId} {
+        allow read: if signedIn();
+        allow create: if signedIn()
+          && validReviewPayload()
+          && request.resource.data.userId == userId
+          && request.resource.data.pedidoId == pedidoDoc;
+        allow update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
+      }
+    }
+
+    match /{path=**}/Pedidos/{pedidoDoc} {
+      allow read: if signedIn();
+    }
+
+    match /{path=**}/DatosPersonales/{docId} {
+      allow read: if isAdmin();
+    }
+
+    match /{path=**}/Pedidos/{pedidoDoc}/Respuesta/{fleteroId} {
+      allow read: if signedIn();
+    }
+
+    match /{path=**}/PedidosConfirmados/{pedidoDoc} {
+      allow read: if canReadPedidosAdmin();
+    }
+
+    match /{path=**}/PedidosFinalizados/{pedidoDoc} {
+      allow read: if canReadPedidosAdmin();
+    }
+
+    match /{path=**}/PedidosCancelados/{pedidoDoc} {
+      allow read: if canReadPedidosAdmin();
+    }
+
+    match /{path=**}/FletesProceso/{fleteId} {
+      allow read: if canReadPedidosAdmin();
+    }
+
+    match /{path=**}/Documentacion/{docId} {
+      allow read: if canReadFleterosAdmin();
+    }
+
+    match /{path=**}/Antecedentes/{docId} {
+      allow read: if canReadFleterosAdmin();
+    }
+
+    match /Fleteros/{fleteroId} {
+      allow read: if canReadFleterosAdmin() || isSelf(fleteroId) || isUsuario();
+      allow create: if isSelf(fleteroId) && hasNoPasswordFields() && hasNoAdminProfileOnCreate();
+      allow update: if (
+        isAdmin() || (isSelf(fleteroId) && hasNoPrivilegedProfileChange())
+      ) && hasNoPasswordFields();
+      allow delete: if isAdmin();
+
+      match /DatosPersonales/{docId} {
+        allow read: if canReadFleterosAdmin() || isSelf(fleteroId) || isUsuario();
+        allow create, update: if isAdmin() || (isSelf(fleteroId) && docId == fleteroId);
+        allow delete: if isAdmin();
+      }
+
+      match /DatosVehiculares/{docId} {
+        allow read: if canReadFleterosAdmin() || isSelf(fleteroId) || isUsuario();
+        allow create, update: if isAdmin() || (isSelf(fleteroId) && docId == fleteroId);
+        allow delete: if isAdmin();
+      }
+
+      match /Vehiculos/{vehiculoId} {
+        allow read: if canReadFleterosAdmin() || isSelf(fleteroId) || isUsuario();
+        allow create, update, delete: if isAdmin() || isSelf(fleteroId);
+      }
+
+      match /Documentacion/{docId} {
+        allow read: if canReadFleterosAdmin() || isSelf(fleteroId);
+        allow create, update: if isAdmin() || (isSelf(fleteroId) && docId == fleteroId);
+        allow delete: if isAdmin();
+      }
+
+      match /Antecedentes/{docId} {
+        allow read: if canReadFleterosAdmin() || isSelf(fleteroId);
+        allow create, update: if isAdmin() || (isSelf(fleteroId) && docId == fleteroId);
+        allow delete: if isAdmin();
+      }
+
+      match /FletesProceso/{fleteId} {
+        allow read: if isAdmin() || isSelf(fleteroId) || (signedIn() && request.auth.uid == resource.data.usuarioId);
+        allow create: if isAdmin() || isSelf(fleteroId) || requestFleteProcesoMatchesUser(fleteroId);
+        allow update: if isAdmin() || isSelf(fleteroId) || storedFleteProcesoMatchesUser();
+        allow delete: if false;
+      }
+    }
+
+    match /chats/{chatId} {
+      allow read: if chatParticipantFromStored();
+      allow create: if chatParticipantFromResource();
+      allow update: if chatParticipantFromStored() || chatParticipantFromResource();
+      allow delete: if isAdmin();
+
+      match /mensajes/{messageId} {
+        allow read: if chatParticipantFromParent(chatId);
+        allow create: if chatParticipantFromParent(chatId)
+          && request.resource.data.senderId == request.auth.uid
+          && request.resource.data.chatId == chatId
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.senderRole in ['user', 'fletero'];
+        allow update, delete: if isAdmin() || (chatParticipantFromParent(chatId) && request.auth.uid == resource.data.senderId);
+      }
+
+      match /{subPath=**} {
+        allow read: if chatParticipantFromParent(chatId);
+      }
+    }
+
+    match /MetricasFleteros/{fleteroId} {
+      allow read: if canReadFleterosAdmin() || isSelf(fleteroId);
+      allow create, update, delete: if false;
+    }
+
+    match /MetricasUsuarios/{userId} {
+      allow read: if canReadUsuariosAdmin() || isSelf(userId);
+      allow create, update, delete: if false;
+    }
+
+    match /ViajesCancelados/{eventoId} {
+      allow read: if canReadPedidosAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /AlertasAdminUsuarios/{alertaId} {
+      allow read: if canReadUsuariosAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /AlertasAntifraude/{alertaId} {
+      allow read: if isAdmin() || isSoporte();
+      allow update: if isAdmin() || isSoporte();
+      allow create, delete: if false;
+    }
+
+    match /ComunicacionesAdmin/{comunicacionId} {
+      allow read: if isAdmin() || isSoporte()
+        || (signedIn() && resource.data.destinatario in ['todos'])
+        || (signedIn() && resource.data.destinatario == 'usuarios' && isUsuario())
+        || (signedIn() && resource.data.destinatario == 'fleteros' && isFletero())
+        || (signedIn() && resource.data.destinatario == 'usuario' && resource.data.destinatarioId == request.auth.uid)
+        || (signedIn() && resource.data.destinatario == 'fletero' && resource.data.destinatarioId == request.auth.uid);
+      allow create, update, delete: if isAdmin() || isSoporte();
+    }
+
+    match /ReportesIncidencias/{reporteId} {
+      allow read: if isAdmin() || isSoporte() || (signedIn() && resource.data.actorId == request.auth.uid);
+      allow create: if isAdmin() || (signedIn() && request.resource.data.actorId == request.auth.uid);
+      allow update: if isAdmin() || isSoporte();
+      allow delete: if isAdmin();
+    }
+
+    match /HistorialPenalizacionesUsuarios/{historialId} {
+      allow read: if isAdmin() || isSoporte();
+      allow create, update, delete: if false;
+    }
+
+    match /HistorialSancionesFleteros/{historialId} {
+      allow read: if canReadFleterosAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /ConfiguracionAdmin/{docId} {
+      allow read: if isAdmin() || isVerificador();
+      allow write: if isAdmin();
+    }
+
+    match /PushSubscriptions/{subscriptionId} {
+      allow read: if isAdmin();
+      allow create, update: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.perfil in ['Usuario', 'Fletero']
+        && request.resource.data.token is string
+        && request.resource.data.token.size() > 0
+        && request.resource.data.enabled is bool;
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && validReviewPayload();
+      allow update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.userId);
+    }
+
+    match /{path=**}/reviews/{reviewId} {
+      allow read: if signedIn();
+    }
+
+    match /PedidosHechos/{pedidoId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /fletes/{fleteId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn();
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

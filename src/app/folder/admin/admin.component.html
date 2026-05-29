@@ -1,0 +1,49 @@
+<app-header></app-header>
+
+<ion-content class="admin-shell">
+  <div class="admin-shell__backdrop"></div>
+
+  <div class="admin-shell__layout">
+    <section class="admin-shell__hero">
+      <div class="admin-shell__hero-copy">
+        <p class="admin-shell__eyebrow">Centro de control</p>
+        <h1>Administración de TuFleteYa</h1>
+        <p>
+          Unificamos métricas, revisión operativa y seguimiento de incidentes en una vista más clara
+          para trabajar más rápido y con menos fricción.
+        </p>
+      </div>
+
+      <div class="admin-shell__hero-badges">
+        <div class="admin-shell__badge">
+          <span>Módulo</span>
+          <strong>Admin</strong>
+        </div>
+        <div class="admin-shell__badge">
+          <span>Estado</span>
+          <strong>Interno</strong>
+        </div>
+      </div>
+    </section>
+
+    <nav class="admin-shell__nav" aria-label="Navegación admin">
+      <button
+        *ngFor="let item of navItems"
+        [hidden]="!canSeeItem(item)"
+        type="button"
+        class="admin-shell__nav-item"
+        [class.is-active]="isRouteActive(item.route)"
+        (click)="navigateTo(item.route)">
+        <ion-icon [name]="item.icon"></ion-icon>
+        <span>{{ item.label }}</span>
+        <small>{{ item.eyebrow }}</small>
+      </button>
+    </nav>
+
+    <section class="admin-shell__content">
+      <router-outlet></router-outlet>
+    </section>
+  </div>
+</ion-content>
+
+<app-tabs-u></app-tabs-u>

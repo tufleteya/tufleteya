@@ -1,0 +1,77 @@
+<app-header></app-header>
+
+<ion-content class="background">
+  <section class="mis-viajes-shell">
+    <div class="hero">
+      <p class="eyebrow">Fletero</p>
+      <h1>Mis viajes</h1>
+      <p class="lead">Controla pedidos confirmados, en curso y finalizados desde un solo lugar.</p>
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tab" [class.active]="activeTab === 'confirmados'" (click)="activeTab = 'confirmados'"><span class="inline-flex items-center gap-1"><ion-icon name="clipboard-outline" class="text-sm"></ion-icon><span>Confirmados</span></span> <span>{{ viajesConfirmados.length }}</span>
+      </button>
+      <button type="button" class="tab" [class.active]="activeTab === 'enCurso'" (click)="activeTab = 'enCurso'"><span class="inline-flex items-center gap-1"><ion-icon name="bus-outline" class="text-sm"></ion-icon><span>En curso</span></span> <span>{{ viajesEnCurso.length }}</span>
+      </button>
+      <button type="button" class="tab" [class.active]="activeTab === 'finalizados'" (click)="activeTab = 'finalizados'"><span class="inline-flex items-center gap-1"><ion-icon name="checkmark-circle-outline" class="text-sm"></ion-icon><span>Finalizados</span></span> <span>{{ viajesFinalizados.length }}</span>
+      </button>
+    </div>
+
+    <div class="loading" *ngIf="cargando">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando viajes...</p>
+    </div>
+
+    <ng-container *ngIf="!cargando">
+      <section *ngIf="activeTab === 'confirmados'" class="list">
+        <article class="trip-card" *ngFor="let viaje of viajesConfirmados">
+          <div class="trip-top">
+            <div>
+              <p class="trip-status inline-flex items-center gap-1" [ngClass]="getEstadoClass(viaje.estado)">{{ viaje.estado }}</p>
+              <h3>{{ viaje.uDesde }} → {{ viaje.uHasta }}</h3>
+            </div>
+            <span class="time">{{ tiempoTranscurrido(viaje.fechaConfirmacion) }}</span>
+          </div>
+          <p class="trip-meta">{{ viaje.fecha }} · {{ viaje.hora < 10 ? '0' + viaje.hora : viaje.hora }}:{{ viaje.minutos < 10 ? '0' + viaje.minutos : viaje.minutos }}</p>
+          <div class="actions">
+            <button type="button" class="primary" (click)="iniciarViaje(viaje)"><span class="inline-flex items-center gap-1"><ion-icon name="play-outline" class="text-base"></ion-icon><span>Iniciar viaje</span></span></button>
+          </div>
+        </article>
+        <p class="empty" *ngIf="!viajesConfirmados.length">No hay viajes confirmados.</p>
+      </section>
+
+      <section *ngIf="activeTab === 'enCurso'" class="list">
+        <article class="trip-card in-progress" *ngFor="let viaje of viajesEnCurso">
+          <div class="trip-top">
+            <div>
+              <p class="trip-status inline-flex items-center gap-1" [ngClass]="getEstadoClass(viaje.estado)">{{ viaje.estado }}</p>
+              <h3>{{ viaje.uDesde }} → {{ viaje.uHasta }}</h3>
+            </div>
+            <span class="time">{{ tiempoTranscurrido(viaje.fechaInicioViaje || viaje.fechaConfirmacion) }}</span>
+          </div>
+          <p class="trip-meta">Destino: {{ viaje.uHasta }} · Precio aceptado: ${{ viaje.precioAceptado }}</p>
+          <div class="actions">
+            <button type="button" class="primary" (click)="finalizarViaje(viaje)"><span class="inline-flex items-center gap-1"><ion-icon name="checkmark-circle-outline" class="text-base"></ion-icon><span>Finalizar viaje</span></span></button>
+          </div>
+        </article>
+        <p class="empty" *ngIf="!viajesEnCurso.length">No hay viajes en curso.</p>
+      </section>
+
+      <section *ngIf="activeTab === 'finalizados'" class="list">
+        <article class="trip-card muted" *ngFor="let viaje of viajesFinalizados">
+          <div class="trip-top">
+            <div>
+              <p class="trip-status inline-flex items-center gap-1" [ngClass]="getEstadoClass(viaje.estado)">{{ viaje.estado }}</p>
+              <h3>{{ viaje.uDesde }} → {{ viaje.uHasta }}</h3>
+            </div>
+            <span class="time">{{ tiempoTranscurrido(viaje.fechaFinalizacion || viaje.fechaConfirmacion) }}</span>
+          </div>
+          <p class="trip-meta">Finalizado en {{ viaje.fechaFinalizacion ? (viaje.fechaFinalizacion | date:'short') : viaje.fecha }}</p>
+        </article>
+        <p class="empty" *ngIf="!viajesFinalizados.length">No hay viajes finalizados.</p>
+      </section>
+    </ng-container>
+  </section>
+</ion-content>
+
+<app-tabs-u></app-tabs-u>

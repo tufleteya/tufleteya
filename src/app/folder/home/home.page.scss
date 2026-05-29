@@ -1,0 +1,101 @@
+.segments{
+  // column-gap: 360px;
+  // margin-left: 50px;
+
+}
+
+
+
+.background2{
+  --ion-background-color: linear-gradient(90deg, rgba(183,181,226,1) 0%, rgba(41,174,228,1) 0%, rgba(12,49,62,1) 0%, rgba(6,102,80,1) 50%, rgba(12,49,62,1) 100%);
+  }
+
+
+       /*Media Querie*/
+       @media only screen and (min-width : 150px) and (max-width : 1660px){
+
+        .segments{
+          column-gap: 10px;
+          margin-left: 0px;
+        }
+    
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        .fleteros-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
+        
+        .fleteros-table th, .fleteros-table td {
+          padding: 8px;
+          text-align: left;
+          border-bottom: 1px solid #ddd;
+        }
+        
+        .fleteros-table th {
+          background-color: #f6fcd3; /* Color de encabezado */
+          color: rgb(36, 36, 36);
+          font-weight: bold;
+        }
+        
+        .fleteros-table tr:hover {
+          background-color: #ffbb69;
+        }
+        
+        .options-button {
+          cursor: pointer;
+          color: #fffbfb;
+        }
+        
+        .menu {
+          display: flex;
+          flex-direction: column;
+          position: absolute;
+          background-color: rgb(91, 60, 60);
+          border: 1px solid #ddd;
+          box-shadow: 0px 2px 4px rgba(0,0,0,0.1);
+          z-index: 10;
+        }
+        
+        .menu button {
+          background: none;
+          border: none;
+          padding: 5px 10px;
+          cursor: pointer;
+          text-align: left;
+        }
+        
+        .menu button:hover {
+          background-color: #eee;
+        }
+        

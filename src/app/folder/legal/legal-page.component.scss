@@ -1,0 +1,123 @@
+.legal-page {
+  --background: linear-gradient(135deg, #053f35 0%, #0b6b58 52%, #0f766e 100%);
+  color: #10202a;
+}
+
+.legal-shell {
+  width: min(100% - 28px, 980px);
+  margin: 0 auto;
+  padding: 28px 0 44px;
+}
+
+.legal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.legal-back,
+.legal-tabs a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: #eafff6;
+  font-weight: 800;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.legal-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.legal-tabs a.active {
+  color: #06351f;
+  background: linear-gradient(135deg, #2add0f, #7df0ad);
+}
+
+.legal-card {
+  border-radius: 26px;
+  padding: clamp(22px, 4vw, 42px);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 60px rgba(2, 20, 22, 0.28);
+}
+
+.legal-card header {
+  margin-bottom: 28px;
+}
+
+.legal-kicker {
+  display: inline-flex;
+  margin: 0 0 12px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: #eafff6;
+  background: #0f766e;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.legal-card h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.legal-updated {
+  margin: 12px 0 0;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.legal-card section {
+  margin-top: 24px;
+}
+
+.legal-card h2 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 1.18rem;
+}
+
+.legal-card p,
+.legal-card li {
+  color: #334155;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.legal-card p {
+  margin: 0 0 12px;
+}
+
+.legal-card ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.legal-card a {
+  color: #047857;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .legal-nav {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .legal-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

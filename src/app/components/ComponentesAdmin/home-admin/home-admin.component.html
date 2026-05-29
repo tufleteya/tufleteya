@@ -1,0 +1,33 @@
+<section class="admin-home">
+  <div class="admin-home__hero">
+    <p class="admin-home__eyebrow">Panel interno</p>
+    <h1>Centro de control admin</h1>
+    <p>
+      Accesos directos para validaciones, operación diaria, usuarios y reportes.
+    </p>
+  </div>
+
+  <div class="admin-home__grid">
+    <ion-card
+      *ngFor="let shortcut of adminShortcuts"
+      class="admin-home__card"
+      [button]="true"
+      [routerLink]="shortcut.route"
+    >
+      <ion-card-content>
+        <div class="admin-home__card-head">
+          <ion-badge [color]="shortcut.color">{{ shortcut.title }}</ion-badge>
+          <ion-icon [name]="shortcut.icon"></ion-icon>
+        </div>
+
+        <h2>{{ shortcut.title }}</h2>
+        <p>{{ shortcut.subtitle }}</p>
+
+        <div class="admin-home__link">
+          Abrir sección
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</section>

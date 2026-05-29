@@ -1,0 +1,103 @@
+<app-header></app-header>
+<ion-content class="background2 register-ux">
+  <section class="u-clearfix u-section-1" id="documentacion-fletero">
+    <div class="u-clearfix u-sheet u-sheet-1">
+      <div class="u-border-2 u-border-grey-75 u-container-style u-custom-color-7 u-expanded-width-xs u-group u-radius-24 u-shape-round u-group-1">
+        <div class="u-container-layout u-container-layout-1">
+          <div class="register-panel">
+            <div class="register-hero">
+              <span class="register-chip">Validación final</span>
+              <h2>Capturá tu documentación desde cámara</h2>
+              <p>El alta del fletero queda en <strong>verificado: false</strong> hasta que el administrador revise manualmente tu DNI, licencia, patente y antecedentes.</p>
+            </div>
+
+            <div class="register-note">
+              La cámara actual te guía con esta pantalla, pero el autodisparo cuando detecta DNI o licencia requiere integrar visión/OCR adicional. Por ahora la captura sigue siendo manual.
+              Si la cámara falla o no tenés permisos, podés continuar subiendo la imagen desde galería.
+            </div>
+
+            <div class="register-doc-grid">
+              <div class="register-doc-card">
+                <div>
+                  <h3>DNI frontal</h3>
+                  <p>Tomá la foto desde la cámara para validar identidad.</p>
+                </div>
+                <button type="button" (click)="takePhoto('dni')" class="u-btn u-btn-1">
+                  {{ hasImage(Datovehicular.imageDni) ? 'Volver a capturar' : 'Capturar DNI frontal' }}
+                </button>
+              </div>
+
+              <div class="register-doc-card">
+                <div>
+                  <h3>DNI dorsal</h3>
+                  <p>Necesario para revisión administrativa del documento completo.</p>
+                </div>
+                <button type="button" (click)="takePhoto('dniDorzal')" class="u-btn u-btn-1">
+                  {{ hasImage(Datovehicular.imageDniDorzal) ? 'Volver a capturar' : 'Capturar DNI dorsal' }}
+                </button>
+              </div>
+
+              <div class="register-doc-card">
+                <div>
+                  <h3>Licencia frontal</h3>
+                  <p>Mostrá claramente los datos y la fecha de vencimiento.</p>
+                </div>
+                <button type="button" (click)="takePhoto('carnet')" class="u-btn u-btn-1">
+                  {{ hasImage(Datovehicular.imageCarnet) ? 'Volver a capturar' : 'Capturar licencia frontal' }}
+                </button>
+              </div>
+
+              <div class="register-doc-card">
+                <div>
+                  <h3>Licencia dorsal</h3>
+                  <p>Completá ambas caras para evitar rechazos de revisión.</p>
+                </div>
+                <button type="button" (click)="takePhoto('carnetDorzal')" class="u-btn u-btn-1">
+                  {{ hasImage(Datovehicular.imageCarnetDorzal) ? 'Volver a capturar' : 'Capturar licencia dorsal' }}
+                </button>
+              </div>
+
+              <div class="register-doc-card">
+                <div>
+                  <h3>Patente del vehículo</h3>
+                  <p>La imagen debe mostrar la patente de forma legible.</p>
+                </div>
+                <button type="button" (click)="takePhoto('patente')" class="u-btn u-btn-1">
+                  {{ hasImage(Datovehicular.imagePatente) ? 'Volver a capturar' : 'Capturar patente' }}
+                </button>
+              </div>
+
+              <div class="register-doc-card">
+                <div>
+                  <h3>Antecedentes penales</h3>
+                  <p>Subí la constancia para revisión interna del administrador.</p>
+                </div>
+                <button type="button" (click)="takePhoto('antecedentes')" class="u-btn u-btn-1">
+                  {{ hasImage(selectedAntecedentesUrl) ? 'Volver a capturar' : 'Capturar antecedentes' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="register-status-grid">
+              <span [class.register-status-ready]="hasImage(Datovehicular.imageDni)" class="register-status-pill">DNI frontal</span>
+              <span [class.register-status-ready]="hasImage(Datovehicular.imageDniDorzal)" class="register-status-pill">DNI dorsal</span>
+              <span [class.register-status-ready]="hasImage(Datovehicular.imageCarnet)" class="register-status-pill">Licencia frontal</span>
+              <span [class.register-status-ready]="hasImage(Datovehicular.imageCarnetDorzal)" class="register-status-pill">Licencia dorsal</span>
+              <span [class.register-status-ready]="hasImage(Datovehicular.imagePatente)" class="register-status-pill">Patente</span>
+              <span [class.register-status-ready]="hasImage(selectedAntecedentesUrl)" class="register-status-pill">Antecedentes</span>
+            </div>
+
+            <div class="register-note">
+              Cuando envíes esta documentación, tu cuenta seguirá pendiente hasta evaluación manual desde el panel de administración.
+            </div>
+
+            <div class="register-actions">
+              <button type="button" (click)="siguiente()" class="u-btn u-btn-1">Enviar documentación</button>
+              <button type="button" (click)="continuarConCargaManual()" class="u-btn u-btn-2">Continuar sin subir archivos</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</ion-content>

@@ -1,0 +1,94 @@
+<div class="map-planner" [class.is-panel-collapsed]="panelCollapsed">
+  <div #map id="map" class="map-planner__map"></div>
+  <div class="map-planner__veil"></div>
+
+  <button
+    type="button"
+    class="map-planner__close-map"
+    (click)="cerrarYConfirmar()">
+    {{ canSave ? 'Cerrar y confirmar' : 'Cerrar' }}
+  </button>
+
+  <section class="map-planner__hint">
+    <span class="map-planner__eyebrow">{{ activePointLabel }}</span>
+    <h2>{{ guidanceTitle }}</h2>
+    <p>{{ guidanceMessage }}</p>
+  </section>
+
+  <div class="map-planner__point-dock">
+    <div class="map-planner__dock-header">
+      <button
+        type="button"
+        class="map-planner__dock-summary"
+        (click)="panelCollapsed ? expandirPanel() : togglePointsSection()">
+        <span>{{ panelTitle }}</span>
+        <strong>{{ panelSummary }}</strong>
+      </button>
+
+      <button
+        type="button"
+        class="map-planner__dock-toggle"
+        (click)="panelCollapsed ? expandirPanel() : cerrarPanel()"
+        [attr.aria-label]="panelCollapsed ? 'Maximizar panel de ruta' : 'Minimizar panel de ruta'">
+        <span>{{ panelCollapsed ? 'Maximizar' : 'Minimizar' }}</span>
+      </button>
+    </div>
+
+    <div class="map-planner__point-scroll" *ngIf="isPointsVisible">
+      <button
+        *ngFor="let point of routePoints; trackBy: trackByPointId"
+        type="button"
+        class="map-planner__point-pill"
+        [class.is-active]="activePointId === point.id"
+        [class.is-ready]="point.coordinates"
+        [disabled]="!canSelectPoint(point)"
+        (click)="setActivePoint(point.id)">
+        <span
+          class="map-planner__point-badge"
+          [class.is-start]="point.kind === 'start'"
+          [class.is-stop]="point.kind === 'stop'"
+          [class.is-end]="point.kind === 'end'">
+          {{ getPointBadge(point) }}
+        </span>
+
+        <span class="map-planner__point-copy">
+          <strong>{{ point.label }}</strong>
+          <small>{{ point.address || getPointPlaceholder(point) }}</small>
+        </span>
+      </button>
+    </div>
+
+    <div class="map-planner__dock-actions" *ngIf="!panelCollapsed">
+      <button
+        type="button"
+        class="map-planner__ghost-button"
+        (click)="addStop()"
+        [disabled]="!canAddStop">
+        Agregar parada
+      </button>
+
+      <button
+        type="button"
+        class="map-planner__primary-button"
+        (click)="guardarRuta()"
+        [disabled]="!canSave">
+        Confirmar ruta
+      </button>
+
+      <button
+        *ngIf="activePoint?.kind === 'stop'"
+        type="button"
+        class="map-planner__danger-button"
+        (click)="removeStop(activePointId)">
+        Quitar parada
+      </button>
+    </div>
+
+    <div class="map-planner__route-meta" *ngIf="!panelCollapsed && (routeDistanceKm || routeDurationMinutes || stopPoints.length || routeError)">
+      <span *ngIf="routeDistanceKm">{{ routeDistanceLabel }}</span>
+      <span *ngIf="routeDurationMinutes">{{ routeDurationLabel }}</span>
+      <span *ngIf="stopPoints.length">{{ stopPoints.length }} parada{{ stopPoints.length === 1 ? '' : 's' }}</span>
+      <span class="map-planner__feedback" *ngIf="routeError">{{ routeError }}</span>
+    </div>
+  </div>
+</div>

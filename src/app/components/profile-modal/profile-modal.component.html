@@ -1,0 +1,149 @@
+<div class="profile-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6">
+  <div class="profile-modal-shell w-full max-w-2xl rounded-[28px] border border-white/60 bg-white/95 shadow-[0_30px_80px_rgba(15,23,42,0.22)] backdrop-blur">
+    <div class="profile-modal-scroll">
+      <div class="profile-modal-head relative overflow-hidden bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 px-5 py-6 text-white sm:px-7">
+        <div class="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="absolute -bottom-10 left-0 h-24 w-24 rounded-full bg-cyan-200/20 blur-2xl"></div>
+
+        <div class="profile-modal-actions">
+          <button
+            type="button"
+            (click)="dismiss()"
+            class="profile-modal-action-btn"
+            aria-label="Volver">
+            <ion-icon name="arrow-back-outline" class="text-xl"></ion-icon>
+            <span>Volver</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="dismiss()"
+            class="profile-modal-icon-btn"
+            aria-label="Cerrar perfil">
+            <ion-icon name="close-outline" class="text-2xl"></ion-icon>
+          </button>
+        </div>
+
+        <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div class="h-20 w-20 shrink-0 overflow-hidden rounded-3xl border-4 border-white/20 bg-white/15 shadow-lg">
+            <img
+              [src]="avatarUrl"
+              [alt]="displayName"
+              class="h-full w-full object-cover">
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
+              {{ profileEyebrow }}
+            </p>
+            <h3 class="mt-2 text-2xl font-semibold leading-tight sm:text-3xl">
+              {{ displayName }}
+            </h3>
+            <p class="mt-2 max-w-xl text-sm text-white/85 sm:text-[15px]">
+              {{ statusLabel }}
+            </p>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <span class="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-semibold text-white">
+                {{ isFletero ? 'Servicio disponible' : 'Viaje coordinado' }}
+              </span>
+              <span *ngIf="province" class="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-semibold text-white">
+                {{ province }}
+              </span>
+              <span *ngIf="trustLabel" class="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-semibold text-white">
+                {{ trustLabel }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-4 bg-slate-50 px-5 py-5 sm:grid-cols-2 sm:px-7">
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:col-span-2">
+          <div class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <ion-icon name="call-outline" class="text-base text-emerald-600"></ion-icon>
+            Contacto
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div *ngIf="profileData?.email" class="rounded-2xl bg-slate-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Email</p>
+              <p class="mt-1 break-all text-sm font-medium text-slate-800">{{ profileData?.email }}</p>
+            </div>
+
+            <div *ngIf="profileData?.telefono" class="rounded-2xl bg-slate-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Telefono</p>
+              <p class="mt-1 text-sm font-medium text-slate-800">{{ profileData?.telefono }}</p>
+            </div>
+
+            <div *ngIf="province" class="rounded-2xl bg-slate-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Provincia</p>
+              <p class="mt-1 text-sm font-medium text-slate-800">{{ province }}</p>
+            </div>
+
+            <div *ngIf="profileData?.domicilio" class="rounded-2xl bg-slate-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Zona</p>
+              <p class="mt-1 text-sm font-medium text-slate-800">{{ profileData?.domicilio }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isFletero" class="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm">
+          <div class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <ion-icon name="car-sport-outline" class="text-base text-emerald-600"></ion-icon>
+            Vehiculo
+          </div>
+
+          <div class="mt-4 space-y-3">
+            <div class="rounded-2xl bg-emerald-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-600">Resumen</p>
+              <p class="mt-1 text-sm font-medium text-slate-800">{{ vehicleSummary || 'Aun no hay datos del vehiculo cargados.' }}</p>
+            </div>
+
+            <div *ngIf="vehicleData?.patente" class="rounded-2xl bg-slate-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Patente</p>
+              <p class="mt-1 text-sm font-medium text-slate-800">{{ vehicleData?.patente }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-cyan-100 bg-white p-4 shadow-sm">
+          <div class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <ion-icon name="shield-checkmark-outline" class="text-base text-cyan-600"></ion-icon>
+            Confianza
+          </div>
+
+          <div class="mt-4 grid gap-3">
+            <div *ngIf="trustScore !== null" class="rounded-2xl bg-cyan-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-600">Score</p>
+              <p class="mt-1 text-2xl font-semibold text-slate-900">{{ trustScore }}/100</p>
+            </div>
+
+            <div *ngIf="recommendationValue !== null" class="rounded-2xl bg-slate-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Recomendacion</p>
+              <p class="mt-1 text-sm font-medium text-slate-800">{{ recommendationValue }}/5</p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 px-4 py-3">
+              <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Estado</p>
+              <p class="mt-1 text-sm font-medium text-slate-800">{{ statusLabel }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-200 bg-white px-5 py-4 sm:px-7">
+        <div class="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          <span class="font-semibold text-slate-800">Nota:</span>
+          Las reseñas y señales de confianza se consolidan al finalizar el viaje para mantener una experiencia mas clara entre ambas partes.
+        </div>
+      </div>
+
+      <div class="profile-modal-footer border-t border-slate-200 bg-white px-5 py-4 sm:px-7">
+        <button type="button" class="profile-modal-footer-btn" (click)="dismiss()">
+          Volver
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

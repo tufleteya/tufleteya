@@ -1,0 +1,55 @@
+/* Cambiar el color de fondo del header a oscuro */
+.header {
+    background-color: #333; /* Fondo oscuro */
+    color: white; /* Texto blanco */
+    box-shadow: 0px 13px 30px 0px rgba(169, 218, 166, 0.968); /* Sombra que ya tenías */
+}
+
+.header-back-button {
+    --color: #ffffff;
+    --icon-font-size: 28px;
+    --padding-start: 0;
+    --padding-end: 8px;
+    min-width: 44px;
+}
+
+/* Cambiar los íconos a blancos */
+ion-icon {
+    color: white;
+}
+
+ion-buttons {
+    color: white; /* Asegura que los botones de los íconos sean blancos */
+}
+
+/* Personalización para el campo de búsqueda (search) */
+.searcho {
+    width: 30%;
+    margin-left: 25%;
+}
+
+.searcho .search {
+    margin-bottom: 20px;
+}
+
+.searcho .search ion-item {
+    border-radius: 10px;
+    box-shadow: 0px 13px 30px 0px rgba(210, 4, 4, 0.968);
+    padding: 8px;
+}
+
+.searcho .search ion-item ion-icon {
+    margin-right: 16px;
+}
+
+.searcho .search ion-item ion-input {
+    padding-left: 10px !important;
+    border-left: 1px solid #F4F4F4;
+}
+
+/* Media query para pantallas pequeñas */
+@media only screen and (min-width: 1338px) and (max-width: 336px) {
+    .searcho {
+        height: 100%;
+    }
+}

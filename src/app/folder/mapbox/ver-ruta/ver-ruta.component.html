@@ -1,0 +1,79 @@
+<div class="map-container">
+  <div #map id="map"></div>
+
+  <button class="btn-close" type="button" (click)="cerrarModal()">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+    <span>Volver</span>
+  </button>
+
+  <div class="route-summary-card" *ngIf="routeDistance || routeDuration || stopCount || routeStageLabel">
+    <span class="route-summary-card__eyebrow">{{ routeStageLabel }}</span>
+
+    <div class="route-summary-card__stats">
+      <div class="route-summary-card__stat" *ngIf="routeDistance">
+        <span>Distancia</span>
+        <strong>{{ routeDistance }}</strong>
+      </div>
+
+      <div class="route-summary-card__stat" *ngIf="routeDuration">
+        <span>Tiempo</span>
+        <strong>{{ routeDuration }}</strong>
+      </div>
+
+      <div class="route-summary-card__stat" *ngIf="stopCount">
+        <span>Paradas</span>
+        <strong>{{ stopCount }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="modo === 'tracking'" class="map-panel tracking-panel">
+    <div class="status-banner" [ngClass]="{ 'finalizado': viajeFinalizado, 'en-viaje': viajeIniciado && !viajeFinalizado }">
+      {{ getTrackingMessage() }}
+    </div>
+
+    <div *ngIf="!viajeIniciado && !viajeFinalizado" class="slide-start" #slideTrack>
+      <div class="slide-start__label">Desliza para iniciar el viaje</div>
+      <div class="slide-start__progress" [style.width.px]="slideOffset + 56"></div>
+      <button
+        type="button"
+        class="slide-start__thumb"
+        [style.transform]="'translateX(' + slideOffset + 'px)'"
+        (pointerdown)="onSlideStart($event)">
+        >
+      </button>
+    </div>
+
+    <button
+      *ngIf="!viajeIniciado && !viajeFinalizado"
+      type="button"
+      class="btn cancelar btn-wide"
+      (click)="cancelarPreparacionViaje()">
+      Cancelar
+    </button>
+
+    <div *ngIf="viajeIniciado && !viajeFinalizado" class="tracking-panel__actions">
+      <button class="btn cancelar btn-wide" (click)="cancelarViajeEnCurso()">
+        Cancelar viaje
+      </button>
+      <button class="btn finalizar btn-wide" (click)="finalizarViaje()">
+        Finalizar viaje
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="modo === 'seguimiento'" class="map-panel seguimiento-panel">
+    <div *ngIf="viajeFinalizado" class="status-banner finalizado">
+      El fletero ha llegado a destino
+    </div>
+    <div *ngIf="!viajeFinalizado && !seguimientoUbicacionDisponible" class="status-banner en-viaje">
+      Esperando que el fletero comparta su ubicación
+    </div>
+    <div *ngIf="!viajeFinalizado && seguimientoUbicacionDisponible" class="status-banner en-viaje">
+      Siguiendo viaje en tiempo real
+    </div>
+    <button *ngIf="!viajeFinalizado" class="btn cancelar btn-wide" (click)="cancelarViajeUsuarioEnCurso()">
+      Reportar y cancelar viaje
+    </button>
+  </div>
+</div>

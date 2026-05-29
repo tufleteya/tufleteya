@@ -1,0 +1,199 @@
+.menu-item {
+  margin-bottom: 5px; /* Ajusta el valor según la separación deseada */
+}
+.logo-container {
+  width: 280px; /* Ancho de la imagen */
+  height: 140px; /* Altura de la imagen */
+  background-image: url("../assets/icon/favicon4.webp");
+  background-size: contain; /* Mantiene la proporción de la imagen */
+  background-repeat: no-repeat; /* Evita que la imagen se repita */
+  background-position: center; /* Centra la imagen en el contenedor */
+}
+// 
+
+.background2 {
+  --ion-background-color: linear-gradient(90deg, rgba(183,181,226,1) 0%, rgba(41,174,228,1) 0%, rgba(12,49,62,1) 0%, rgba(6,102,80,1) 50%, rgba(12,49,62,1) 100%);
+  padding: 15px; /* Espaciado adicional para la lista completa */
+}
+
+
+.background-toolbar {
+  background: linear-gradient(90deg, rgba(183,181,226,1) 0%, rgba(41,174,228,1) 0%, rgba(12,49,62,1) 0%, rgba(6,102,80,1) 50%, rgba(12,49,62,1) 100%) !important;
+  background-size: cover !important; 
+  background-position: center !important;
+}
+
+ion-toolbar {
+  --background: transparent !important; /* Cambiar fondo del toolbar a transparente */
+}
+
+
+
+.logo {
+  object-fit: contain; /* Ajusta el tamaño del logo dentro del contenedor */
+}
+
+
+.u-backlink h2,
+.u-backlink p,
+.u-backlink a {
+  color: white; /* Cambia el color del texto a blanco */
+}
+
+.u-link {
+  text-decoration: none; /* Opcional: para quitar el subrayado del enlace */
+}
+
+.menu-item {
+  margin-bottom: 5px;
+  background: linear-gradient(90deg, rgba(183,181,226,1) 0%, rgba(41,174,228,1) 0%, rgba(12,49,62,1) 0%, rgba(6,102,80,1) 50%, rgba(12,49,62,1) 100%);
+  color: white; /* Cambiar el color del texto a blanco */
+  border-radius: 8px; /* Esquinas redondeadas */
+  --ion-background-color: transparent; /* Fondo transparente para evitar interferencias */
+  --background-hover: rgba(255, 255, 255, 0.1); /* Color de fondo cuando el mouse pasa sobre el botón */
+}
+
+.menu-item:hover {
+  background: linear-gradient(90deg, rgba(183,181,226,1) 0%, rgba(41,174,228,1) 50%, rgba(6,102,80,1) 100%);
+  color: white; /* Cambiar color del texto al pasar el mouse */
+}
+
+// .menu-item ion-label {
+//   font-weight: bold; /* Texto en negrita */
+//   color: white; /* Asegura que el color sea blanco */
+// }
+
+.menu-item ion-icon {
+  color: white; /* Cambia el color de los íconos a blanco */
+}
+
+.menu-item.active {
+  background: rgba(255, 255, 255, 0.2); /* Fondo diferente para el ítem activo */
+}
+
+/* Asegúrate de que el contenedor sea un contenedor flex */
+.content-container {
+  display: flex;
+  flex-direction: column; /* Centrar elementos verticalmente */
+  align-items: center; /* Centrar elementos horizontalmente */
+  justify-content: center; /* Centrar verticalmente en el contenedor */
+  text-align: center; /* Centrar el texto dentro de los elementos */
+  height: 100%; /* Asegúrate de que el contenedor ocupe toda la altura del padre si es necesario */
+}
+
+/* Opcional: Ajusta el estilo del section si es necesario */
+.u-backlink {
+  padding: 20px; /* Ajusta el padding según sea necesario */
+}
+.push-debug-panel {
+  position: fixed;
+  right: 12px;
+  bottom: 88px;
+  width: min(360px, calc(100vw - 24px));
+  z-index: 2200;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(15, 23, 42, 0.92);
+  color: #e2e8f0;
+  padding: 12px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.push-debug-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.push-debug-panel__close {
+  border: 0;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.22);
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.push-debug-panel p {
+  margin: 0 0 4px;
+  font-size: 12px;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.push-debug-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.push-debug-open {
+  position: fixed;
+  right: 12px;
+  bottom: 88px;
+  z-index: 2200;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #0f9b8e 0%, #22c55e 100%);
+  box-shadow: 0 8px 20px rgba(15, 155, 142, 0.35);
+}
+
+ion-menu .logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 116px;
+  height: auto;
+  padding: 12px 24px 6px;
+  background-image: none;
+}
+
+ion-menu .logo-container img {
+  display: block;
+  width: min(190px, 72%);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.22));
+}
+
+ion-menu .menu-item {
+  margin: 0 10px 8px;
+  color: #eafff6;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+  --min-height: 56px;
+  --padding-start: 18px;
+  --inner-padding-end: 16px;
+  --background: rgba(255, 255, 255, 0.035);
+  --background-hover: rgba(20, 184, 166, 0.14);
+  --background-activated: rgba(20, 184, 166, 0.2);
+  --color: #eafff6;
+  --border-color: rgba(255, 255, 255, 0.06);
+  background: transparent;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+ion-menu .menu-item:hover {
+  border-color: rgba(45, 212, 191, 0.28);
+  box-shadow: inset 3px 0 0 #2dd4bf;
+  transform: translateX(2px);
+  background: transparent;
+  color: #ffffff;
+}
+
+ion-menu .menu-item ion-icon {
+  color: #d1fae5;
+  font-size: 1.35rem;
+}
+
+ion-menu .menu-item.active {
+  --background: rgba(45, 212, 191, 0.16);
+  box-shadow: inset 3px 0 0 #22c55e;
+}

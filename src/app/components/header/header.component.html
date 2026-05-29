@@ -1,0 +1,31 @@
+<ion-header class="bg-gradient-to-r from-teal-800 via-cyan-700 to-cyan-500 backdrop-blur-md shadow-lg h-20">
+  <ion-toolbar class="flex justify-between items-center px-4 h-full">
+
+    <!-- Botón Back -->
+    <ion-buttons *ngIf="login" slot="start" class="flex items-center">
+      <ion-back-button
+        [defaultHref]="homeHref"
+        text=""
+        icon="chevron-back-outline"
+        aria-label="Volver"
+        class="header-back-button text-white text-lg">
+      </ion-back-button>
+    </ion-buttons>
+
+    <!-- Título opcional -->
+   
+
+    <!-- Botón Menú -->
+    <ion-buttons slot="end" class="flex items-center space-x-2">
+      <!-- Chat Button -->
+      <ion-button *ngIf="login && !rolPanel" (click)="goToChat()" class="text-white text-2xl p-2 rounded-full hover:bg-white/20 transition-colors duration-200 relative">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+        <ion-badge *ngIf="chatCount$ | async as count" color="danger" class="absolute -top-1 -right-1">{{ count }}</ion-badge>
+      </ion-button>
+      <ion-menu-button class="text-white text-2xl p-2 rounded-full hover:bg-white/20 transition-colors duration-200">
+        <ion-icon name="grid-outline"></ion-icon>
+      </ion-menu-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>

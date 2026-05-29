@@ -1,0 +1,502 @@
+:host {
+	display: block;
+}
+
+.pedido-step-wrap {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	width: 100%;
+	padding: 24px 16px 108px;
+	color: #0f172a;
+}
+
+.pedido-form-shell {
+	border: 1px solid rgba(16, 185, 129, 0.1);
+	box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.pedido-schedule-card {
+	width: min(960px, 100%);
+	padding: 24px;
+	border-radius: 24px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, #f8fafc 100%);
+	border-color: rgba(16, 185, 129, 0.22);
+	box-shadow: 0 24px 58px rgba(2, 6, 23, 0.22);
+	overflow: hidden;
+}
+
+.pedido-schedule-hero {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 18px;
+	border-radius: 20px;
+	background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 72%);
+	border: 1px solid rgba(16, 185, 129, 0.18);
+}
+
+.pedido-schedule-hero__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 52px;
+	height: 52px;
+	flex: 0 0 auto;
+	border-radius: 18px;
+	background: #0f766e;
+	color: #ffffff;
+	font-size: 26px;
+	box-shadow: 0 16px 28px rgba(15, 118, 110, 0.22);
+}
+
+.pedido-eyebrow {
+	margin: 0 0 4px;
+	color: #0f766e;
+	font-size: 0.72rem;
+	font-weight: 900;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+
+.pedido-form-title {
+	margin: 0;
+	color: #0f172a;
+	font-weight: 900;
+	letter-spacing: -0.02em;
+}
+
+.pedido-schedule-copy {
+	margin: 6px 0 0;
+	color: #475569;
+	font-size: 0.95rem;
+	font-weight: 650;
+	line-height: 1.35;
+}
+
+.pedido-schedule-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin: 16px 0;
+	padding: 16px 18px;
+	border-radius: 18px;
+	background: #0f172a;
+	color: #ffffff;
+}
+
+.pedido-schedule-summary span {
+	display: block;
+	margin-bottom: 4px;
+	color: #a7f3d0;
+	font-size: 0.72rem;
+	font-weight: 900;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.pedido-schedule-summary strong {
+	display: block;
+	color: #ffffff;
+	font-size: 1.05rem;
+	font-weight: 900;
+}
+
+.pedido-schedule-summary ion-icon {
+	flex: 0 0 auto;
+	color: #86efac;
+	font-size: 26px;
+}
+
+.pedido-datetime-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+	gap: 16px;
+	align-items: stretch;
+}
+
+.pedido-datetime-card {
+	min-width: 0;
+	padding: 16px;
+	border-radius: 20px;
+	background: #ffffff;
+	border: 1px solid rgba(148, 163, 184, 0.22);
+	box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.pedido-datetime-card__header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.pedido-datetime-card__header > span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	flex: 0 0 auto;
+	border-radius: 14px;
+	background: #ecfdf5;
+	color: #047857;
+	font-size: 21px;
+}
+
+.pedido-datetime-card__header p {
+	margin: 3px 0 0;
+	color: #64748b;
+	font-size: 0.8rem;
+	font-weight: 700;
+}
+
+.pedido-form-grid {
+	color: #1e293b;
+}
+
+.pedido-field-label {
+	margin-bottom: 8px;
+	color: #334155;
+	font-size: 0.98rem;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+}
+
+.pedido-field {
+	min-height: 48px;
+	border-radius: 16px;
+	border-color: rgba(148, 163, 184, 0.35);
+	background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+	color: #0f172a;
+	font-size: 1rem;
+	font-weight: 700;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pedido-field::placeholder {
+	color: #94a3b8;
+	font-weight: 600;
+}
+
+.pedido-field:hover {
+	border-color: rgba(16, 185, 129, 0.35);
+}
+
+.pedido-field:focus,
+.pedido-select:focus {
+	border-color: #22c55e;
+	box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12), 0 12px 28px rgba(15, 23, 42, 0.07);
+	outline: none;
+}
+
+.pedido-select {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	padding-right: 44px;
+	background-image:
+		linear-gradient(45deg, transparent 50%, #0f766e 50%),
+		linear-gradient(135deg, #0f766e 50%, transparent 50%),
+		linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+	background-position:
+		calc(100% - 20px) calc(50% - 1px),
+		calc(100% - 14px) calc(50% - 1px),
+		0 0;
+	background-size: 6px 6px, 6px 6px, 100% 100%;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+.pedido-select option {
+	color: #0f172a;
+	font-weight: 700;
+}
+
+.pedido-datetime-shell {
+	display: flex;
+	justify-content: center;
+	border-radius: 22px;
+	border-color: rgba(148, 163, 184, 0.3);
+	background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+	padding: 12px;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+	overflow: hidden;
+}
+
+.pedido-datetime-shell--time {
+	min-height: 294px;
+	align-items: center;
+}
+
+.pedido-datetime-shell:hover {
+	border-color: rgba(16, 185, 129, 0.35);
+	box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+.pedido-datetime {
+	--background: transparent;
+	--background-rgb: transparent;
+	--ion-color-primary: #16a34a;
+	--ion-text-color: #0f172a;
+	--padding-start: 0;
+	--padding-end: 0;
+	--padding-top: 0;
+	--padding-bottom: 0;
+	width: 100%;
+	max-width: 330px;
+	color: #0f172a;
+	font-weight: 800;
+	letter-spacing: -0.01em;
+}
+
+.pedido-datetime-shell--time .pedido-datetime {
+	max-width: 260px;
+}
+
+.pedido-time-picker {
+	display: grid;
+	gap: 14px;
+	min-height: 294px;
+	align-content: center;
+	border-radius: 22px;
+	background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+	padding: 16px;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.pedido-time-display {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 16px;
+	border-radius: 18px;
+	background: #0f172a;
+	color: #ffffff;
+}
+
+.pedido-time-display span {
+	color: #a7f3d0;
+	font-size: 0.72rem;
+	font-weight: 900;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.pedido-time-display strong {
+	font-size: clamp(2rem, 9vw, 3rem);
+	font-weight: 950;
+	line-height: 1;
+}
+
+.pedido-time-selectors {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+	gap: 10px;
+	align-items: end;
+}
+
+.pedido-time-selectors label {
+	display: grid;
+	gap: 6px;
+	min-width: 0;
+}
+
+.pedido-time-selectors label span {
+	color: #64748b;
+	font-size: 0.74rem;
+	font-weight: 900;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.pedido-time-selectors strong {
+	padding-bottom: 12px;
+	color: #0f766e;
+	font-size: 1.55rem;
+	font-weight: 950;
+	line-height: 1;
+}
+
+.pedido-time-selectors select {
+	width: 100%;
+	min-height: 54px;
+	border: 1px solid rgba(16, 185, 129, 0.2);
+	border-radius: 14px;
+	background:
+		linear-gradient(45deg, transparent 50%, #0f766e 50%),
+		linear-gradient(135deg, #0f766e 50%, transparent 50%),
+		#ffffff;
+	background-position:
+		calc(100% - 20px) calc(50% - 1px),
+		calc(100% - 14px) calc(50% - 1px),
+		0 0;
+	background-size: 6px 6px, 6px 6px, 100% 100%;
+	background-repeat: no-repeat;
+	appearance: none;
+	color: #0f172a;
+	font-size: 1.35rem;
+	font-weight: 950;
+	padding: 0 42px 0 14px;
+	box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.pedido-time-selectors select:focus {
+	border-color: #22c55e;
+	box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+	outline: none;
+}
+
+.pedido-time-options button,
+.pedido-period-options button {
+	border: 0;
+	border-radius: 14px;
+	background: #ecfdf5;
+	color: #047857;
+	font-weight: 900;
+	transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.pedido-time-options,
+.pedido-period-options {
+	display: grid;
+	gap: 8px;
+}
+
+.pedido-time-options {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pedido-period-options {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pedido-time-options button,
+.pedido-period-options button {
+	min-height: 42px;
+	font-size: 0.92rem;
+}
+
+.pedido-time-options button:hover,
+.pedido-period-options button:hover {
+	transform: translateY(-1px);
+	background: #d1fae5;
+}
+
+.pedido-time-options button.is-selected,
+.pedido-period-options button.is-selected {
+	background: #16a34a;
+	color: #ffffff;
+	box-shadow: 0 10px 18px rgba(22, 163, 74, 0.2);
+}
+
+.pedido-schedule-note {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin-top: 16px;
+	padding: 12px 14px;
+	border-radius: 16px;
+	background: #f0fdfa;
+	color: #0f766e;
+	font-size: 0.85rem;
+	font-weight: 750;
+	line-height: 1.35;
+}
+
+.pedido-schedule-note ion-icon {
+	flex: 0 0 auto;
+	margin-top: 1px;
+	font-size: 18px;
+}
+
+.pedido-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 18px;
+}
+
+.pedido-primary-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 48px;
+	border: 0;
+	border-radius: 999px;
+	background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+	color: #ffffff;
+	padding: 0 24px;
+	font-size: 0.95rem;
+	font-weight: 900;
+	box-shadow: 0 16px 30px rgba(34, 197, 94, 0.24);
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.pedido-primary-btn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 20px 34px rgba(34, 197, 94, 0.28);
+}
+
+:host ::ng-deep .pedido-datetime .datetime-text,
+:host ::ng-deep .pedido-datetime .datetime-native {
+	color: #0f172a;
+	font-weight: 800;
+	font-size: 1rem;
+}
+
+:host ::ng-deep .pedido-datetime .datetime-placeholder {
+	color: #94a3b8;
+	font-weight: 600;
+}
+
+@media (max-width: 640px) {
+	.pedido-step-wrap {
+		padding: 16px 12px 108px;
+	}
+
+	.pedido-schedule-card {
+		padding: 14px;
+		border-radius: 20px;
+	}
+
+	.pedido-schedule-hero {
+		align-items: flex-start;
+		padding: 14px;
+	}
+
+	.pedido-schedule-hero__icon {
+		width: 44px;
+		height: 44px;
+		border-radius: 15px;
+		font-size: 22px;
+	}
+
+	.pedido-form-title {
+		font-size: 1.15rem;
+	}
+
+	.pedido-datetime-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.pedido-field-label {
+		font-size: 0.95rem;
+	}
+
+	.pedido-field {
+		font-size: 0.98rem;
+	}
+
+	.pedido-actions {
+		justify-content: stretch;
+	}
+
+	.pedido-primary-btn {
+		width: 100%;
+	}
+}

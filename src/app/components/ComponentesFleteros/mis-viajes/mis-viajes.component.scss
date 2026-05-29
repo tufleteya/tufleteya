@@ -1,0 +1,175 @@
+:host {
+  display: block;
+}
+.background {
+  background-color: #333; /* Fondo oscuro */
+    color: white; /* Texto blanco */
+    box-shadow: 0px 13px 30px 0px rgba(169, 218, 166, 0.968);
+}
+.mis-viajes-page {
+  background-color: #333; /* Fondo oscuro */
+    color: white; /* Texto blanco */
+    box-shadow: 0px 13px 30px 0px rgba(169, 218, 166, 0.968);
+  }
+
+.mis-viajes-shell {
+  padding: 24px 16px 36px;
+  color: #f4f7fb;
+}
+
+.hero {
+  margin-bottom: 18px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800;
+}
+
+.lead {
+  margin: 8px 0 0;
+  max-width: 42rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.tab {
+  border: 0;
+  border-radius: 16px;
+  padding: 12px 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab span {
+  display: inline-flex;
+  min-width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 0.8rem;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, #ffffff, #dff5ee);
+  color: #0c5e52;
+}
+
+.loading,
+.empty {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.list {
+  display: grid;
+  gap: 14px;
+}
+
+.trip-card {
+  border-radius: 22px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f172a;
+  box-shadow: 0 18px 40px rgba(4, 27, 26, 0.18);
+}
+
+.trip-card.in-progress {
+  border: 1px solid rgba(18, 145, 112, 0.35);
+}
+
+.trip-card.muted {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.trip-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.trip-status {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.trip-top h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.time,
+.trip-meta {
+  color: #64748b;
+}
+
+.trip-meta {
+  margin: 8px 0 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.primary {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #0f7a68, #23c08b);
+  color: #fff;
+  font-weight: 800;
+}
+
+.estado-confirmado {
+  color: #b45309;
+}
+
+.estado-en-viaje {
+  color: #0f766e;
+}
+
+.estado-finalizado {
+  color: #4f46e5;
+}
+
+@media (max-width: 640px) {
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-top {
+    flex-direction: column;
+  }
+}

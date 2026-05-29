@@ -1,0 +1,37 @@
+<app-header></app-header>
+<ion-content class="background2 role-landing">
+  <section class="role-landing__container">
+    <header class="role-landing__header">
+      <h1>¿Cómo querés usar FletesYa?</h1>
+      <p>Elegí tu perfil para continuar con el registro.</p>
+    </header>
+
+    <div class="role-landing__grid">
+      <article class="role-card" (click)="user()">
+        <div class="role-card__image-wrap">
+          <img src="assets/banco/regiUser.webp" alt="Perfil usuario" class="role-card__image" loading="lazy" />
+        </div>
+        <div class="role-card__content">
+          <h2>Usuario</h2>
+          <p>Podés pedir un flete de manera gratuita.</p>
+          <button type="button" class="role-card__button">Soy Usuario</button>
+        </div>
+      </article>
+
+      <article class="role-card" (click)="fletero()">
+        <div class="role-card__image-wrap">
+          <img src="assets/images/HomeF3.webp" alt="Perfil fletero" class="role-card__image" loading="lazy" />
+        </div>
+        <div class="role-card__content">
+          <h2>Fletero</h2>
+          <p>Encontrá fletes cerca de tu ubicación.</p>
+          <button type="button" class="role-card__button">Soy Fletero</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="role-landing__actions">
+      <button type="button" class="back-button" (click)="volver()">Volver</button>
+    </div>
+  </section>
+</ion-content>

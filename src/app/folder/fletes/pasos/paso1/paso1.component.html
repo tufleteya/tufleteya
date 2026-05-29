@@ -1,0 +1,310 @@
+<ion-segment [(ngModel)]="valueSelected" [ngModelOptions]="{ standalone: true }" color="light" class="w-full mt-4">
+  <ion-segment-button (click)="btn1()" value="1">
+    <ion-icon name="calendar-number-outline"></ion-icon>
+    <ion-label>Fecha y hora</ion-label>
+  </ion-segment-button>
+  <ion-segment-button (click)="btn2()" value="2">
+    <ion-icon name="documents-outline"></ion-icon>
+    <ion-label>Datos del pedido</ion-label>
+  </ion-segment-button>
+</ion-segment>
+
+<div *ngIf="valueSelected === '1'" class="pedido-step-wrap">
+  <div class="pedido-form-shell pedido-schedule-card">
+    <div class="pedido-schedule-hero">
+      <span class="pedido-schedule-hero__icon">
+        <ion-icon name="calendar-clear-outline"></ion-icon>
+      </span>
+      <div>
+        <p class="pedido-eyebrow">Paso 1 de 2</p>
+        <h2 class="pedido-form-title">Fecha y hora del flete</h2>
+        <p class="pedido-schedule-copy">
+          Elegi cuando queres que el fletero llegue al punto de retiro.
+        </p>
+      </div>
+    </div>
+
+    <div class="pedido-schedule-summary">
+      <div>
+        <span>Programado para</span>
+        <strong>{{ fechaResumenLabel }} · {{ horaResumenLabel }}</strong>
+      </div>
+      <ion-icon name="time-outline"></ion-icon>
+    </div>
+
+    <div class="pedido-datetime-grid">
+      <section class="pedido-datetime-card">
+        <div class="pedido-datetime-card__header">
+          <span>
+            <ion-icon name="calendar-number-outline"></ion-icon>
+          </span>
+          <div>
+            <label class="pedido-field-label">Fecha</label>
+            <p>Desde hoy en adelante</p>
+          </div>
+        </div>
+
+        <div class="pedido-datetime-shell">
+          <ion-datetime
+            [(ngModel)]="fechaSeleccionada"
+            [ngModelOptions]="{ standalone: true }"
+            presentation="date"
+            [min]="minDate"
+            preferWheel="false"
+            class="pedido-datetime">
+          </ion-datetime>
+        </div>
+      </section>
+
+      <section class="pedido-datetime-card">
+        <div class="pedido-datetime-card__header">
+          <span>
+            <ion-icon name="alarm-outline"></ion-icon>
+          </span>
+          <div>
+            <label class="pedido-field-label">Hora</label>
+            <p>Intervalos de 15 minutos</p>
+          </div>
+        </div>
+
+        <div class="pedido-time-picker">
+          <div class="pedido-time-display">
+            <span>Hora elegida</span>
+            <strong>{{ horaResumenLabel }}</strong>
+          </div>
+
+          <div class="pedido-time-selectors">
+            <label>
+              <span>Hora</span>
+              <select [value]="selectedHour" (change)="onHourSelect($event)">
+                <option *ngFor="let hour of hourOptions" [value]="hour">
+                  {{ hour | number:'2.0-0' }}
+                </option>
+              </select>
+            </label>
+
+            <strong>:</strong>
+
+            <label>
+              <span>Minutos</span>
+              <select [value]="selectedMinute" (change)="onMinuteSelect($event)">
+                <option *ngFor="let minute of minuteOptions" [value]="minute">
+                  {{ minute | number:'2.0-0' }}
+                </option>
+              </select>
+            </label>
+          </div>
+
+          <div class="pedido-time-options" aria-label="Minutos">
+            <button
+              *ngFor="let minute of minuteOptions"
+              type="button"
+              (click)="selectMinute(minute)"
+              [class.is-selected]="isSelectedMinute(minute)">
+              {{ minute | number:'2.0-0' }}
+            </button>
+          </div>
+
+          <div class="pedido-period-options" aria-label="Periodo del dia">
+            <button
+              type="button"
+              (click)="selectPeriod('AM')"
+              [class.is-selected]="isSelectedPeriod('AM')">
+              AM
+            </button>
+            <button
+              type="button"
+              (click)="selectPeriod('PM')"
+              [class.is-selected]="isSelectedPeriod('PM')">
+              PM
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="pedido-schedule-note">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span>La publicacion quedara visible para fleteros cercanos y vencera automaticamente si nadie toma el pedido.</span>
+    </div>
+
+    <div class="pedido-actions">
+      <button type="button" (click)="goToDatosPedido()" class="pedido-primary-btn">
+        <span>Siguiente</span>
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="valueSelected === '2'" class="relative z-20 p-6">
+  <div class="pedido-form-shell relative z-30 mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-md md:p-10">
+    <h2 class="pedido-form-title mb-6 text-center text-xl font-semibold text-gray-800">
+      Datos del pedido
+    </h2>
+
+    <form class="pedido-form-grid grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div class="md:col-span-2 rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+              Ruta del viaje
+            </span>
+            <h3 class="mt-2 text-lg font-semibold text-slate-900">
+              Configura origen, paradas opcionales y destino
+            </h3>
+            <p class="mt-1 text-sm text-slate-600">
+              El mapa ahora te deja agregar paradas intermedias y guardar una ruta más prolija.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="abrirMapa()"
+            class="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-emerald-700">
+            {{ tieneRutaConfigurada ? 'Editar ruta' : 'Elegir en mapa' }}
+          </button>
+
+          <button
+            *ngIf="tieneRutaConfigurada"
+            type="button"
+            (click)="iniciarNuevoViaje()"
+            class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:text-emerald-700">
+            Nuevo viaje
+          </button>
+        </div>
+
+        <div class="mt-5 grid gap-3">
+          <div class="rounded-2xl border border-white/70 bg-white/90 p-4 shadow-sm">
+            <div class="flex items-start gap-3">
+              <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white">
+                A
+              </span>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Origen</p>
+                <p class="mt-1 text-sm text-slate-700">
+                  {{ pasosFlete.uDesde || 'Todavía no seleccionaste el punto de retiro.' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            *ngFor="let parada of paradasSeleccionadas; trackBy: trackByParada; let i = index"
+            class="rounded-2xl border border-amber-100 bg-amber-50/70 p-4 shadow-sm">
+            <div class="flex items-start gap-3">
+              <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-500 text-sm font-bold text-white">
+                {{ i + 1 }}
+              </span>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Parada {{ i + 1 }}</p>
+                <p class="mt-1 text-sm text-slate-700">
+                  {{ parada.direccion }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 shadow-sm">
+            <div class="flex items-start gap-3">
+              <span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
+                B
+              </span>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">Destino</p>
+                <p class="mt-1 text-sm text-slate-700">
+                  {{ pasosFlete.uHasta || 'Todavía no seleccionaste el punto de entrega.' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-2" *ngIf="tieneRutaConfigurada">
+          <span *ngIf="routeDistanceLabel" class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+            {{ routeDistanceLabel }}
+          </span>
+          <span *ngIf="routeDurationLabel" class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">
+            {{ routeDurationLabel }}
+          </span>
+          <span *ngIf="paradasSeleccionadas.length" class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+            {{ paradasSeleccionadas.length }} parada{{ paradasSeleccionadas.length > 1 ? 's' : '' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="pedido-field-label mb-1 block font-medium text-gray-700">Cargamento</label>
+        <input
+          [(ngModel)]="pasosFlete.cargamento"
+          [ngModelOptions]="{ standalone: true }"
+          type="text"
+          placeholder="Tipo de carga"
+          class="pedido-field w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-green-500" />
+      </div>
+
+      <div>
+        <label class="pedido-field-label mb-1 block font-medium text-gray-700">Acceso de carga</label>
+        <select
+          [(ngModel)]="pasosFlete.accesoCarga"
+          [ngModelOptions]="{ standalone: true }"
+          class="pedido-field pedido-select w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-green-500">
+          <option *ngFor="let acceso of accesosCarga" [value]="acceso">
+            {{ acceso }}
+          </option>
+        </select>
+        <p class="mt-1 text-xs text-gray-500">
+          Esto ayuda al fletero a saber si retira o entrega a nivel calle o con subida.
+        </p>
+      </div>
+
+      <div>
+        <label class="pedido-field-label mb-1 block font-medium text-gray-700">Tipo de servicio</label>
+        <select
+          [(ngModel)]="pasosFlete.tipoServicio"
+          [ngModelOptions]="{ standalone: true }"
+          class="pedido-field pedido-select w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-green-500">
+          <option value="" disabled selected>Seleccione una opción</option>
+          <option value="Carga">Carga</option>
+          <option value="Descarga">Descarga</option>
+          <option value="Carga y descarga">Carga y descarga</option>
+          <option value="Ninguno">Ninguno</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="pedido-field-label mb-1 block font-medium text-gray-700">Tipo de vehículo</label>
+        <select
+          [(ngModel)]="pasosFlete.tipoVehiculo"
+          [ngModelOptions]="{ standalone: true }"
+          class="pedido-field pedido-select w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-green-500">
+          <option value="" disabled selected>Seleccione un vehículo</option>
+          <option *ngFor="let tipoVehiculo of vehiculos" [value]="tipoVehiculo">
+            {{ tipoVehiculo }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="pedido-field-label mb-1 block font-medium text-gray-700">¿Necesitas ayudantes?</label>
+        <select
+          [(ngModel)]="pasosFlete.ayudantes"
+          [ngModelOptions]="{ standalone: true }"
+          class="pedido-field pedido-select w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 focus:ring-2 focus:ring-green-500">
+          <option *ngFor="let ayudantes of ayudante" [value]="ayudantes">
+            {{ ayudantes }}
+          </option>
+        </select>
+      </div>
+    </form>
+
+    <div class="mt-10 text-center">
+      <button
+        (click)="enviarDatos()"
+        [disabled]="!validateForm()"
+        class="pedido-submit-btn rounded-xl bg-[#2ADD0F] px-10 py-3 font-semibold text-white shadow-md transition-transform hover:scale-105 hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100">
+        Enviar
+      </button>
+    </div>
+  </div>
+</div>

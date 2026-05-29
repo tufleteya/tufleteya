@@ -1,0 +1,145 @@
+<section class="space-y-6">
+  <div class="rounded-[28px] bg-white/90 p-6 shadow-[0_20px_45px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Accesos internos</p>
+    <h2 class="mt-2 text-3xl font-extrabold text-slate-900">Administradores del panel</h2>
+    <p class="mt-2 max-w-3xl text-sm text-slate-500">
+      Alta y mantenimiento de cuentas con permisos de Admin, Soporte o Verificador.
+    </p>
+  </div>
+
+  <div class="grid gap-6 xl:grid-cols-[minmax(320px,420px)_1fr]">
+    <form class="rounded-[28px] bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70" (ngSubmit)="guardarAcceso()">
+      <div class="mb-5">
+        <h3 class="text-lg font-bold text-slate-900">Crear o actualizar acceso</h3>
+        <p class="mt-1 text-sm text-slate-500">Elegí una cuenta existente o pegá el UID de Firebase Auth.</p>
+      </div>
+
+      <label class="block">
+        <span class="text-sm font-semibold text-slate-700">Buscar cuenta</span>
+        <input
+          type="text"
+          [(ngModel)]="busquedaCandidato"
+          (ngModelChange)="filtrarCandidatos()"
+          name="busquedaCandidato"
+          placeholder="Nombre, email o UID"
+          class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-teal-500" />
+      </label>
+
+      <div class="mt-3 grid max-h-72 gap-2 overflow-y-auto pr-1">
+        <button
+          *ngFor="let candidato of candidatosFiltrados; trackBy: trackByUid"
+          type="button"
+          class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-left transition hover:border-teal-200 hover:bg-teal-50"
+          (click)="seleccionarCandidato(candidato)">
+          <span class="block text-sm font-bold text-slate-900">
+            {{ candidato.nombre || candidato.apellido ? ((candidato.nombre || '') + ' ' + (candidato.apellido || '')) : candidato.uid }}
+          </span>
+          <span class="mt-1 block text-xs text-slate-500">{{ candidato.email || 'Sin email' }}</span>
+          <span class="mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-teal-700 ring-1 ring-teal-100">
+            {{ candidato.perfil }}
+          </span>
+        </button>
+      </div>
+
+      <label class="mt-5 block">
+        <span class="text-sm font-semibold text-slate-700">UID</span>
+        <input
+          type="text"
+          [(ngModel)]="form.uid"
+          name="uid"
+          required
+          placeholder="UID del usuario"
+          class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold outline-none focus:border-teal-500" />
+      </label>
+
+      <label class="mt-4 block">
+        <span class="text-sm font-semibold text-slate-700">Rol del panel</span>
+        <select
+          [(ngModel)]="form.rol"
+          name="rol"
+          class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold outline-none focus:border-teal-500">
+          <option *ngFor="let rol of roles" [value]="rol">{{ rol }}</option>
+        </select>
+      </label>
+
+      <label class="mt-4 flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
+        <span>
+          <span class="block text-sm font-semibold text-slate-800">Acceso activo</span>
+          <span class="block text-xs text-slate-500">Permite entrar al panel según el rol elegido.</span>
+        </span>
+        <ion-toggle [(ngModel)]="form.activo" name="activo"></ion-toggle>
+      </label>
+
+      <button
+        type="submit"
+        [disabled]="guardando || !form.uid.trim()"
+        class="mt-5 w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-900/10 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50">
+        Guardar acceso
+      </button>
+    </form>
+
+    <div class="overflow-hidden rounded-[28px] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+      <div class="border-b border-slate-100 p-5">
+        <h3 class="text-lg font-bold text-slate-900">Accesos configurados</h3>
+        <p class="mt-1 text-sm text-slate-500">{{ accesos.length }} cuenta{{ accesos.length === 1 ? '' : 's' }} con registro en Admins.</p>
+      </div>
+
+      <div *ngIf="cargando" class="flex min-h-64 items-center justify-center">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <div *ngIf="!cargando" class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-100 text-left text-slate-600">
+            <tr>
+              <th class="px-4 py-3">Cuenta</th>
+              <th class="px-4 py-3">Rol</th>
+              <th class="px-4 py-3">Estado</th>
+              <th class="px-4 py-3">Última edición</th>
+              <th class="px-4 py-3 text-center">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let acceso of accesos; trackBy: trackByUid" class="border-b border-slate-100 align-top hover:bg-slate-50">
+              <td class="px-4 py-3">
+                <div class="font-bold text-slate-900">{{ getCandidateLabel(acceso.uid || acceso.id) }}</div>
+                <div class="mt-1 max-w-[280px] truncate text-xs text-slate-500">{{ acceso.uid || acceso.id }}</div>
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex rounded-full bg-teal-100 px-3 py-1 text-xs font-bold text-teal-800">
+                  {{ acceso.rol || 'Admin' }}
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <span
+                  class="inline-flex rounded-full px-3 py-1 text-xs font-bold"
+                  [ngClass]="acceso.activo !== false ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'">
+                  {{ acceso.activo !== false ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-slate-600">
+                {{ getUpdatedAtText(acceso.updatedAt) }}
+              </td>
+              <td class="px-4 py-3 text-center">
+                <button
+                  type="button"
+                  class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-teal-200 hover:text-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  [disabled]="guardando || ((acceso.uid || acceso.id) === currentUid && acceso.activo !== false)"
+                  (click)="cambiarEstadoAcceso(acceso)">
+                  {{ acceso.activo === false ? 'Activar' : 'Desactivar' }}
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="accesos.length === 0">
+              <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">
+                Todavía no hay accesos administrativos cargados.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

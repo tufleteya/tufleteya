@@ -1,0 +1,16 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { HomeAdminComponent } from 'src/app/components/ComponentesAdmin/home-admin/home-admin.component';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: HomeAdminComponent,
+  },
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule],
+})
+export class AdminHomeRoutingModule {}

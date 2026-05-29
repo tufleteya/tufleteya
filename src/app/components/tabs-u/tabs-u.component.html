@@ -1,0 +1,58 @@
+<nav
+  class="tabs-bar"
+  *ngIf="login"
+>
+  <button
+    type="button"
+    class="tabs-item"
+    [class.tabs-item--active]="isPrimaryTabActive()"
+    *ngIf="rol === 'Fletero'"
+    (click)="FleteDisplonibles()"
+  >
+    <ion-icon name="car-outline"></ion-icon>
+    <span>Fletes Disponibles</span>
+  </button>
+
+  <button
+    type="button"
+    class="tabs-item"
+    [class.tabs-item--active]="isPrimaryTabActive()"
+    *ngIf="rol === 'Usuario'"
+    [routerLink]="['/fletes']"
+  >
+    <ion-icon name="car-outline"></ion-icon>
+    <span>Pedir Flete</span>
+  </button>
+
+  <button
+    type="button"
+    class="tabs-item"
+    [class.tabs-item--active]="isPrimaryTabActive()"
+    *ngIf="rolPanel"
+    [routerLink]="['/admin/dashboard']"
+  >
+    <ion-icon name="grid-outline"></ion-icon>
+    <span>Panel</span>
+  </button>
+
+  <button
+    type="button"
+    class="tabs-item"
+    [class.tabs-item--active]="isHomeActive()"
+    [routerLink]="homeRoute"
+  >
+    <ion-icon name="home-outline"></ion-icon>
+    <span>Inicio</span>
+  </button>
+
+  <button
+    type="button"
+    class="tabs-item"
+    [class.tabs-item--active]="isProfileActive()"
+    *ngIf="!rolPanel"
+    [routerLink]="['/profile']"
+  >
+    <ion-icon name="person-circle"></ion-icon>
+    <span>Perfil</span>
+  </button>
+</nav>

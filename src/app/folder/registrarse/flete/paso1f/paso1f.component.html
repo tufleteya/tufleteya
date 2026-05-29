@@ -1,0 +1,220 @@
+<app-header></app-header>
+<ion-content class="background2 register-ux">
+  <ion-segment [value]="valueSelected" color="dark">
+    <ion-segment-button (click)="btn1()" value="1">
+      <ion-icon name="mail-outline"></ion-icon>
+      <ion-label>Acceso</ion-label>
+    </ion-segment-button>
+    <ion-segment-button (click)="btn2()" value="2" [disabled]="!canAccessStep('2')">
+      <ion-icon name="person-outline"></ion-icon>
+      <ion-label>Perfil</ion-label>
+    </ion-segment-button>
+    <ion-segment-button (click)="btn3()" value="3" [disabled]="!canAccessStep('3')">
+      <ion-icon name="car-outline"></ion-icon>
+      <ion-label>Vehículo</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <section class="u-clearfix u-section-1" id="registro-fletero">
+    <div class="u-clearfix u-sheet u-sheet-1">
+      <div class="u-border-2 u-border-grey-75 u-container-style u-custom-color-7 u-expanded-width-xs u-group u-radius-24 u-shape-round u-group-1">
+        <div class="u-container-layout u-container-layout-1">
+          <div *ngIf="valueSelected === '1'" class="register-panel">
+            <div class="register-hero">
+              <span class="register-chip">Alta de fletero</span>
+              <h2>Accedé con correo o Google</h2>
+              <p>El registro inicial queda mas limpio: sin validacion por numero y con revision administrativa manual al final.</p>
+            </div>
+
+            <div class="u-form u-palette-1-light-3 u-radius-14 u-form-1">
+              <form class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;">
+                <div class="u-form-group u-label-top">
+                  <label for="email-input" class="u-label">Correo electrónico</label>
+                  <input [(ngModel)]="registerF.email" type="email" placeholder="nombre@correo.com" id="email-input" name="email" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <label for="password-input" class="u-label">Contraseña</label>
+                  <input [(ngModel)]="registerF.password" type="password" placeholder="Mínimo 8 caracteres y 1 mayúscula" id="password-input" name="password" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="registerF.password && customPasswordValidator(registerF.password)" class="error-message">
+                    La contraseña debe tener al menos 8 caracteres y una mayúscula.
+                  </div>
+                </div>
+
+                <div class="register-actions">
+                  <button type="button" (click)="siguiente()" class="u-btn u-btn-1">Continuar con correo</button>
+                  <button type="button" (click)="signInWithGoogle()" class="u-btn u-btn-1">Ingresar con Google</button>
+                  <button type="button" (click)="volver()" class="u-btn u-btn-2">Volver</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div *ngIf="valueSelected === '2'" class="register-panel">
+            <div class="register-hero">
+              <span class="register-chip">Paso 2</span>
+              <h2>Datos personales del fletero</h2>
+              <p>El teléfono fue removido de este paso. La validación real queda centrada en la documentación y revisión del DNI.</p>
+            </div>
+
+            <div class="u-form u-palette-1-light-3 u-radius-14 u-form-1">
+              <form class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;">
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="nombre-f" class="u-label">Nombre</label>
+                  <input [(ngModel)]="registerF.nombre" type="text" placeholder="Tu nombre" name="nombre" id="nombre-f" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="validateNombre()" class="error-message">El nombre debe tener al menos 3 caracteres.</div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="apellido-f" class="u-label">Apellido</label>
+                  <input [(ngModel)]="registerF.apellido" type="text" placeholder="Tu apellido" id="apellido-f" name="apellido" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="validateApellido()" class="error-message">El apellido debe tener al menos 3 caracteres.</div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="dni-f" class="u-label">DNI</label>
+                  <input [(ngModel)]="registerF.dni" type="text" placeholder="8 dígitos sin puntos" name="dni" id="dni-f" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" pattern="[0-9]{8}" required>
+                  <div *ngIf="validateDNI()" class="error-message">Debe contener 8 dígitos numéricos.</div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="edad-f" class="u-label">Edad</label>
+                  <input [(ngModel)]="registerF.edad" type="number" placeholder="Entre 18 y 65" name="edad" id="edad-f" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" min="18" max="65" required>
+                  <div *ngIf="validateEdad()" class="error-message">La edad debe estar entre 18 y 65 años.</div>
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <label for="address-f" class="u-label">Dirección</label>
+                  <input [(ngModel)]="registerF.domicilio" type="text" placeholder="Tu domicilio" id="address-f" name="address" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="validateDomicilio()" class="error-message">Ingresá tu dirección.</div>
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <label for="telefono-respaldo-f" class="u-label">Teléfono de respaldo</label>
+                  <input [(ngModel)]="registerF.telefonoRespaldo" type="text" placeholder="Opcional, sin validación SMS" id="telefono-respaldo-f" name="telefonoRespaldo" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" inputmode="tel">
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <ion-select
+                    [(ngModel)]="registerF.provincia"
+                    [ngModelOptions]="{ standalone: true }"
+                    label="Provincia"
+                    interface="popover"
+                    [interfaceOptions]="provinciaInterfaceOptions"
+                    [required]="true"
+                    #provinciaSelect="ngModel">
+                    <ion-select-option *ngFor="let selecProvincia of provincia" [value]="selecProvincia">
+                      {{ selecProvincia }}
+                    </ion-select-option>
+                  </ion-select>
+                  <div *ngIf="provinciaSelect.invalid && provinciaSelect.touched" class="error-message">
+                    La provincia es obligatoria.
+                  </div>
+                </div>
+
+                <div class="register-note">
+                  Al terminar este paso tu cuenta sigue en estado <strong>pendiente</strong>. Si hay permiso de ubicacion, tambien guardamos la localizacion del alta como respaldo.
+                </div>
+
+                <div class="u-form-group u-form-checkbox u-label-top legal-consent">
+                  <input type="checkbox" id="accept-terms-fletero" [(ngModel)]="isChecked" name="acceptTerms">
+                  <label for="accept-terms-fletero" class="u-label">
+                    <span>Acepto los</span>
+                    <a routerLink="/legal/terminos" (click)="$event.stopPropagation()">t&eacute;rminos y condiciones</a>
+                    <span>y la</span>
+                    <a routerLink="/legal/privacidad" (click)="$event.stopPropagation()">pol&iacute;tica de privacidad</a>
+                  </label>
+                </div>
+
+                <ion-accordion-group class="legal-accordion">
+                  <ion-accordion value="first">
+                    <ion-item slot="header">
+                      <ion-label>Términos y condiciones</ion-label>
+                    </ion-item>
+                    <div class="ion-padding" slot="content">
+                      <h3>Condiciones del fletero</h3>
+                      <p>Para operar en la plataforma, el fletero debe completar sus datos y quedar pendiente de revision administrativa.</p>
+                      <p>La verificacion final la realiza el administrador desde su panel privado.</p>
+                    </div>
+                  </ion-accordion>
+                </ion-accordion-group>
+
+                <div class="register-actions">
+                  <button type="button" (click)="siguiente2()" class="u-btn u-btn-1">Continuar</button>
+                  <button type="button" (click)="btn1()" class="u-btn u-btn-2">Volver al acceso</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div *ngIf="valueSelected === '3'" class="register-panel">
+            <div class="register-hero">
+              <span class="register-chip">Paso 3</span>
+              <h2>Datos del vehículo</h2>
+              <p>Despues de este paso tu cuenta queda pendiente para revision manual del administrador.</p>
+            </div>
+
+            <div class="u-form u-palette-1-light-3 u-radius-14 u-form-1">
+              <form #vehicleForm="ngForm" class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;">
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="tipoVehiculo" class="u-label">Tipo de vehículo</label>
+                  <select
+                    [(ngModel)]="Datovehicular.tipoVehiculo"
+                    id="tipoVehiculo"
+                    name="tipoVehiculo"
+                    class="u-border-1 u-border-grey-60 u-input u-input-rectangle"
+                    required>
+                    <option value="" disabled selected>Seleccioná un tipo de vehículo</option>
+                    <option *ngFor="let tipoVehiculo of vehiculo" [value]="tipoVehiculo">{{ tipoVehiculo }}</option>
+                  </select>
+                  <div *ngIf="vehicleForm.controls.tipoVehiculo && vehicleForm.controls.tipoVehiculo.errors?.required" class="error-message">
+                    Seleccioná un tipo de vehículo.
+                  </div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="marca" class="u-label">Marca</label>
+                  <input [(ngModel)]="Datovehicular.marca" type="text" placeholder="Ej: Ford" id="marca" name="marca" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="vehicleForm.controls.marca && vehicleForm.controls.marca.errors?.required" class="error-message">
+                    Ingresá la marca.
+                  </div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="modelo" class="u-label">Modelo</label>
+                  <input [(ngModel)]="Datovehicular.modelo" type="text" placeholder="Ej: F100" id="modelo" name="modelo" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="vehicleForm.controls.modelo && vehicleForm.controls.modelo.errors?.required" class="error-message">
+                    Ingresá el modelo.
+                  </div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="ano" class="u-label">Año</label>
+                  <input [(ngModel)]="Datovehicular.ano" type="number" placeholder="Ej: 2020" id="ano" name="ano" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="validateAno()" class="error-message">Ingresá un año válido.</div>
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <label for="patente" class="u-label">Patente</label>
+                  <input [(ngModel)]="Datovehicular.patente" (input)="onPatenteInput($event)" type="text" placeholder="ABC123 o AB123CD" id="patente" name="patente" class="u-border-1 u-border-grey-60 u-input u-input-rectangle register-patente-input" pattern="[A-Za-z0-9]{6,7}" maxlength="7" required>
+                  <div *ngIf="vehicleForm.controls.patente && vehicleForm.controls.patente.errors?.required" class="error-message">
+                    Ingresá la patente del vehículo.
+                  </div>
+                  <div *ngIf="vehicleForm.controls.patente && vehicleForm.controls.patente.errors?.pattern" class="error-message">
+                    La patente debe tener 6 o 7 caracteres alfanuméricos en formato argentino.
+                  </div>
+                </div>
+
+                <div class="register-actions">
+                  <button type="button" (click)="enviarF()" class="u-btn u-btn-1">Guardar y enviar a revision</button>
+                  <button type="button" (click)="btn2()" class="u-btn u-btn-2">Volver a perfil</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</ion-content>
+

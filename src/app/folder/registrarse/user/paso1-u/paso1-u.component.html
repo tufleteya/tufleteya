@@ -1,0 +1,150 @@
+<app-header></app-header>
+<ion-content class="background2 register-ux">
+  <ion-segment [value]="valueSelected" color="dark">
+    <ion-segment-button (click)="btn1()" value="1">
+      <ion-icon name="mail-outline"></ion-icon>
+      <ion-label>Acceso</ion-label>
+    </ion-segment-button>
+    <ion-segment-button (click)="btn2()" value="2" [disabled]="!canAccessStep('2')">
+      <ion-icon name="person-outline"></ion-icon>
+      <ion-label>Datos Personales</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <section class="u-clearfix u-section-1" id="registro-usuario">
+    <div class="u-clearfix u-sheet u-sheet-1">
+      <div class="u-border-2 u-border-grey-75 u-container-style u-custom-color-7 u-expanded-width-xs u-group u-radius-24 u-shape-round u-group-1">
+        <div class="u-container-layout u-container-layout-1">
+          <div *ngIf="valueSelected === '1'" class="register-panel">
+            <div class="register-hero">
+              <span class="register-chip">Registro de usuario</span>
+              <h2>Ingresá con correo o Google</h2>
+              <p>Quitamos la validación por número para que el alta sea más simple y consistente.</p>
+            </div>
+
+            <div class="u-form u-palette-1-light-3 u-radius-14 u-form-1">
+              <form class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;">
+                <div class="u-form-group u-label-top">
+                  <label for="email-input" class="u-label">Correo electrónico</label>
+                  <input [(ngModel)]="registerU.email" type="email" placeholder="nombre@correo.com" id="email-input" name="email" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <label for="password-input" class="u-label">Contraseña</label>
+                  <input [(ngModel)]="registerU.password" type="password" placeholder="Mínimo 8 caracteres y 1 mayúscula" id="password-input" name="password" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="registerU.password && customPasswordValidator(registerU.password)" class="error-message">
+                    La contraseña debe tener al menos 8 caracteres y una mayúscula.
+                  </div>
+                </div>
+
+                <div class="register-actions">
+                  <button type="button" (click)="siguiente()" class="u-btn u-btn-1">Continuar con correo</button>
+                  <button type="button" (click)="signInWithGoogle()" class="u-btn u-btn-1">Ingresar con Google</button>
+                  <button type="button" (click)="volver()" class="u-btn u-btn-2">Volver</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div *ngIf="valueSelected === '2'" class="register-panel">
+            <div class="register-hero">
+              <span class="register-chip">Paso 2</span>
+              <h2>Completá tus datos personales</h2>
+              <p>Este paso ya no pide teléfono. Solo guardamos la información esencial para tu perfil.</p>
+            </div>
+
+            <div class="u-form u-palette-1-light-3 u-radius-14 u-form-1">
+              <form class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;">
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="nombre" class="u-label">Nombre</label>
+                  <input [(ngModel)]="registerU.nombre" type="text" placeholder="Tu nombre" name="nombre" id="nombre" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="validateNombre()" class="error-message">El nombre debe tener al menos 3 caracteres.</div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="apellido" class="u-label">Apellido</label>
+                  <input [(ngModel)]="registerU.apellido" type="text" placeholder="Tu apellido" id="apellido" name="apellido" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="validateApellido()" class="error-message">El apellido debe tener al menos 3 caracteres.</div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="dni" class="u-label">DNI</label>
+                  <input [(ngModel)]="registerU.dni" type="text" placeholder="8 dígitos sin puntos" name="dni" id="dni" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" pattern="[0-9]{8}" required>
+                  <div *ngIf="validateDNI()" class="error-message">Debe contener 8 dígitos numéricos.</div>
+                </div>
+
+                <div class="u-form-group u-form-partition-factor-2 u-label-top">
+                  <label for="edad" class="u-label">Edad</label>
+                  <input [(ngModel)]="registerU.edad" type="number" placeholder="Entre 18 y 65" name="edad" id="edad" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" min="18" max="65" required>
+                  <div *ngIf="validateEdad()" class="error-message">La edad debe estar entre 18 y 65 años.</div>
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <label for="address" class="u-label">Dirección</label>
+                  <input [(ngModel)]="registerU.domicilio" type="text" placeholder="Tu domicilio" id="address" name="address" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                  <div *ngIf="validateDomicilio()" class="error-message">Ingresá tu dirección.</div>
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <label for="telefono-respaldo-u" class="u-label">Teléfono de respaldo</label>
+                  <input [(ngModel)]="registerU.telefonoRespaldo" type="text" placeholder="Opcional, sin validación SMS" id="telefono-respaldo-u" name="telefonoRespaldo" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" inputmode="tel">
+                </div>
+
+                <div class="u-form-group u-label-top">
+                  <ion-select
+                    [(ngModel)]="registerU.provincia"
+                    [ngModelOptions]="{ standalone: true }"
+                    label="Provincia"
+                    interface="popover"
+                    [interfaceOptions]="provinciaInterfaceOptions"
+                    [required]="true"
+                    #provinciaSelect="ngModel">
+                    <ion-select-option *ngFor="let selecProvincia of provincia" [value]="selecProvincia">
+                      {{ selecProvincia }}
+                    </ion-select-option>
+                  </ion-select>
+                  <div *ngIf="provinciaSelect.invalid && provinciaSelect.touched" class="error-message">
+                    La provincia es obligatoria.
+                  </div>
+                </div>
+
+                <div class="register-note">
+                  Tu cuenta se crea con el método de acceso elegido en el paso anterior. Si autorizás ubicación del navegador, también guardamos la ubicación de alta como respaldo operativo.
+                </div>
+
+                <div class="u-form-group u-form-checkbox u-label-top legal-consent">
+                  <input type="checkbox" id="accept-terms-user" [(ngModel)]="isChecked" name="acceptTerms">
+                  <label for="accept-terms-user" class="u-label">
+                    <span>Acepto los</span>
+                    <a routerLink="/legal/terminos" (click)="$event.stopPropagation()">t&eacute;rminos y condiciones</a>
+                    <span>y la</span>
+                    <a routerLink="/legal/privacidad" (click)="$event.stopPropagation()">pol&iacute;tica de privacidad</a>
+                  </label>
+                </div>
+
+                <ion-accordion-group class="legal-accordion">
+                  <ion-accordion value="first">
+                    <ion-item slot="header">
+                      <ion-label>Términos y condiciones</ion-label>
+                    </ion-item>
+                    <div class="ion-padding" slot="content">
+                      <h3>Última actualización: 15/09/2024</h3>
+                      <p>Bienvenido a TuFleteYa. Estos términos y condiciones describen las reglas y regulaciones para el uso del sitio web y la aplicación móvil TuFleteYa.</p>
+                      <p>El registro en la plataforma es obligatorio para ambos perfiles. Al continuar aceptás las condiciones de uso y el tratamiento operativo de la información cargada.</p>
+                    </div>
+                  </ion-accordion>
+                </ion-accordion-group>
+
+                <div class="register-actions">
+                  <button type="button" (click)="enviar()" class="u-btn u-btn-1">Finalizar registro</button>
+                  <button type="button" (click)="btn1()" class="u-btn u-btn-2">Volver al acceso</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</ion-content>
+

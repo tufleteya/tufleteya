@@ -1,0 +1,69 @@
+# Sistema / editores
+*~
+*.sw[mnpcod]
+.tmp
+*.tmp
+*.tmp.*
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+UserInterfaceState.xcuserstate
+$RECYCLE.BIN/
+
+# Logs
+*.log
+log.txt
+npm-debug.log*
+firebase-debug.log
+firestore-debug.log
+
+# Angular / Ionic / Build
+.angular/
+dist/
+out-tsc/
+.tmp/
+temp/
+.ionic/
+.sass-cache/
+.sourcemaps/
+.versions/
+coverage/
+
+# Node
+node_modules/
+
+# IDEs
+.idea/
+.vscode/*
+!/.vscode/extensions.json
+
+# Plataformas / plugins / www
+/platforms/
+/plugins/
+/www/
+
+# Deploy
+.vercel/
+.netlify/
+.vercel
+.env*.local
+
+# Credenciales / configuracion por proyecto
+src/environments/environment.ts
+src/environments/environment.prod.ts
+src/app/firebase-config.ts
+android/app/google-services.json
+ios/App/App/GoogleService-Info.plist
+.firebaserc
+*.env
+*.env.*
+
+# Artefactos generados
+.firebase/
+*.zip
+main.*.js
+polyfills.*.js
+runtime.*.js
+styles.*.css
+.lighthouse-report*.json

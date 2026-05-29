@@ -1,0 +1,677 @@
+<div class="fletes-card-page p-4 bg-gray-50">
+
+<br>
+<br>
+<!-- Segmentos -->
+<div class="flex justify-center gap-2 mb-5">
+  <button (click)="cambiarSegmento('disponibles')"
+          [ngClass]="selectedSegment === 'disponibles' ? 'bg-green-500 text-white' : 'bg-white text-gray-600 border border-gray-300'"
+          class="rounded-full px-4 py-2 font-semibold text-xs transition-all duration-300">
+    <span class="inline-flex items-center gap-1">
+      <ion-icon name="clipboard-outline" class="text-sm"></ion-icon>
+      <span>Disponibles ({{ pedidosDisponiblesFiltrados.length }})</span>
+    </span>
+  </button>
+  <button (click)="cambiarSegmento('enProceso')"
+          [ngClass]="selectedSegment === 'enProceso' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 border border-gray-300'"
+          class="rounded-full px-4 py-2 font-semibold text-xs transition-all duration-300">
+    <span class="inline-flex items-center gap-1">
+      <ion-icon name="bus-outline" class="text-sm"></ion-icon>
+      <span>En Proceso ({{ fletesEnProceso.length }})</span>
+    </span>
+  </button>
+  <button (click)="cambiarSegmento('finalizados')"
+          [ngClass]="selectedSegment === 'finalizados' ? 'bg-gray-700 text-white' : 'bg-white text-gray-600 border border-gray-300'"
+          class="rounded-full px-4 py-2 font-semibold text-xs transition-all duration-300">
+    <span class="inline-flex items-center gap-1">
+      <ion-icon name="checkmark-circle-outline" class="text-sm"></ion-icon>
+      <span>Finalizados ({{ fletesFinalizados.length }})</span>
+    </span>
+  </button>
+</div>
+
+<div *ngIf="cuentaPendienteVerificacion"
+     class="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <p class="text-sm font-black uppercase tracking-[0.16em]">Cuenta con acceso parcial</p>
+      <p class="mt-1 text-sm">{{ estadoCuentaTexto }}</p>
+    </div>
+    <button type="button"
+            (click)="irACompletarVerificacion()"
+            class="rounded-full bg-amber-500 px-4 py-2 text-xs font-bold text-white transition hover:bg-amber-600">
+      Esperando revision
+    </button>
+  </div>
+</div>
+
+<section class="pedidos-board">
+  <div class="pedidos-board__grid">
+
+    <!-- ============== DISPONIBLES ============== -->
+    <ng-container *ngIf="selectedSegment === 'disponibles'">
+
+      <div class="radio-filter">
+        <div>
+          <p class="radio-filter__eyebrow">Filtro por distancia</p>
+          <h3>Pedidos dentro de {{ radioFiltroActivoLabel }}</h3>
+        </div>
+
+        <div class="radio-filter__actions">
+          <button
+            *ngFor="let radio of radiosKm"
+            type="button"
+            (click)="seleccionarRadioKm(radio)"
+            [class.active]="filtroRadioKm === radio">
+            {{ radio }} km
+          </button>
+        </div>
+
+        <div class="radio-filter__custom">
+          <input
+            type="number"
+            min="1"
+            [max]="maxRadioFiltroKm"
+            step="1"
+            [(ngModel)]="radioPersonalizadoKm"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Ej: 150" />
+          <button type="button" (click)="aplicarRadioPersonalizado()" [disabled]="obteniendoUbicacion">
+            {{ obteniendoUbicacion ? 'Ubicando...' : 'Aplicar' }}
+          </button>
+        </div>
+
+        <p *ngIf="ubicacionFiltroError" class="radio-filter__error">{{ ubicacionFiltroError }}</p>
+      </div>
+
+      <div *ngIf="!ubicacionFletero" class="location-permission-card">
+        <div>
+          <p class="location-permission-card__eyebrow">Ubicacion requerida</p>
+          <h3>{{ ubicacionFiltroError || 'Activa tu ubicacion para ver pedidos cercanos' }}</h3>
+          <p>{{ ubicacionAyudaTexto }}</p>
+        </div>
+        <button type="button" (click)="solicitarActivarUbicacion()" [disabled]="obteniendoUbicacion">
+          <ion-icon name="navigate-outline" class="text-base"></ion-icon>
+          <span>{{ ubicacionAccionTexto }}</span>
+        </button>
+      </div>
+
+      <div *ngIf="pedidosDisponiblesFiltrados.length === 0" class="pedidos-empty">
+        No hay pedidos disponibles para este filtro.
+      </div>
+
+      <div *ngFor="let datos of pedidosDisponiblesFiltrados; trackBy: trackByFleteId" class="pedido-card">
+
+        <!-- Usuario -->
+        <div class="pedido-card__header flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-green-500 flex-shrink-0">
+            <img [src]="datos.image ? datos.image : '../../../../../assets/person-outline.svg'" class="w-full h-full object-cover" />
+          </div>
+          <div class="pedido-card__title">
+            <h4 class="text-base font-semibold">{{datos.nombre}} {{datos.apellido}}</h4>
+            <span>{{ getTiempoDesdePedido(datos) }}</span>
+          </div>
+          <button type="button"
+                  class="pedido-card__toggle"
+                  (click)="togglePedidoMinimizado(datos.id)"
+                  [attr.aria-expanded]="!isPedidoMinimizado(datos.id)">
+            <ion-icon [name]="isPedidoMinimizado(datos.id) ? 'chevron-down-outline' : 'chevron-up-outline'" class="text-base"></ion-icon>
+          </button>
+        </div>
+
+        <div class="pedido-card__compact" *ngIf="isPedidoMinimizado(datos.id)">
+          <div>
+            <ion-icon name="navigate-outline" class="text-base"></ion-icon>
+            <span>{{ ubicacionFletero ? getDistanciaPedidoLabel(datos) : 'Distancia no disponible' }}</span>
+          </div>
+          <div>
+            <ion-icon name="cube-outline" class="text-base"></ion-icon>
+            <span>{{ datos.cargamento }} - {{ datos.tipoVehiculo }}</span>
+          </div>
+          <div>
+            <ion-icon name="cash-outline" class="text-base"></ion-icon>
+            <span>{{ getResumenOfertasPedido(datos) }}</span>
+          </div>
+        </div>
+
+        <ng-container *ngIf="!isPedidoMinimizado(datos.id)">
+
+        <!-- Fecha y Hora -->
+        <div class="flex justify-between items-center text-sm text-gray-500 mt-1">
+          <span class="inline-flex items-center gap-1">
+            <ion-icon name="calendar-outline" class="text-base"></ion-icon>
+            <span>{{ datos.fecha | date:'dd/MM/yyyy' }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1">
+            <ion-icon name="time-outline" class="text-base"></ion-icon>
+            <span>{{ datos.hora }}:{{ datos.minutos }}</span>
+          </span>
+        </div>
+
+        <div [class]="getRecordatorioVencimientoClase(datos)">
+          <span class="recordatorio__icon">
+            <ion-icon name="timer-outline" class="text-base"></ion-icon>
+          </span>
+          <span>{{ getRecordatorioVencimientoPedido(datos) }}</span>
+        </div>
+
+        <div *ngIf="ubicacionFletero" class="distance-chip">
+          <ion-icon name="navigate-outline" class="text-base"></ion-icon>
+          <span>{{ getDistanciaPedidoLabel(datos) }}</span>
+        </div>
+
+        <!-- Ubicaciones -->
+        <div class="flex flex-col gap-1 text-sm text-gray-700 mt-1">
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="location-outline" class="text-base"></ion-icon>
+              <span>Desde</span>
+            </span>
+            <span class="font-semibold">{{datos.uDesde}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="flag-outline" class="text-base"></ion-icon>
+              <span>Hasta</span>
+            </span>
+            <span class="font-semibold">{{datos.uHasta}}</span>
+          </div>
+        </div>
+
+        <!-- Detalles del pedido -->
+        <div class="flex flex-col gap-1 mt-1 text-gray-700 text-sm">
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="cube-outline" class="text-base"></ion-icon>
+              <span>Cargamento</span>
+            </span>
+            <span class="font-semibold">{{datos.cargamento}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="business-outline" class="text-base"></ion-icon>
+              <span>Acceso</span>
+            </span>
+            <span class="font-semibold">{{datos.accesoCarga || 'No informado'}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="pricetag-outline" class="text-base"></ion-icon>
+              <span>Servicio</span>
+            </span>
+            <span class="font-semibold rounded-full px-3 py-0.5 text-xs text-white"
+                  [ngClass]="{
+                    'bg-green-500': datos.tipoServicio === 'Carga y descarga',
+                    'bg-blue-500': datos.tipoServicio === 'Carga',
+                    'bg-orange-500': datos.tipoServicio === 'Descarga',
+                    'bg-gray-400': !datos.tipoServicio || datos.tipoServicio === 'Ninguno'
+                  }">
+              {{ datos.tipoServicio || 'No especificado' }}
+            </span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="people-outline" class="text-base"></ion-icon>
+              <span>Ayudantes</span>
+            </span>
+            <span class="font-semibold">{{datos.ayudantes}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="car-outline" class="text-base"></ion-icon>
+              <span>Tipo Vehículo</span>
+            </span>
+            <span class="font-semibold">{{datos.tipoVehiculo}}</span>
+          </div>
+        </div>
+
+        <ng-container *ngIf="getMiRespuesta(datos) as miRespuesta">
+          <div class="offer-summary">
+            <div>
+              <span>Tu oferta enviada</span>
+              <strong>${{ getPrecioRespuesta(miRespuesta) }}</strong>
+            </div>
+            <p *ngIf="getPosicionMiOferta(datos)">Posicion por precio: {{ getPosicionMiOferta(datos) }}</p>
+          </div>
+        </ng-container>
+
+        <div class="competitor-prices" *ngIf="getRespuestasColegas(datos) as ofertasColegas">
+          <div class="competitor-prices__head">
+            <span>Ofertas de colegas</span>
+            <strong>{{ ofertasColegas.length }}</strong>
+          </div>
+          <p *ngIf="getPrecioMinimoColegas(datos) as precioMinimo" class="competitor-prices__best">
+            Mejor precio de colegas: ${{ precioMinimo }}
+          </p>
+          <div class="competitor-prices__list">
+            <div *ngFor="let oferta of ofertasColegas.slice(0, 4); trackBy: trackByRespuesta" class="competitor-prices__row">
+              <span>{{ oferta.nombre || 'Fletero' }} {{ oferta.apellido || '' }}</span>
+              <strong>${{ getPrecioRespuesta(oferta) }}</strong>
+            </div>
+            <div *ngIf="ofertasColegas.length === 0" class="competitor-prices__empty">
+              Todavia no hay ofertas de colegas.
+            </div>
+          </div>
+        </div>
+
+        <button *ngIf="!getMiRespuesta(datos)"
+                (click)="precioInputChanged(datos.id, datos.precioEnviado, datos)"
+                class="w-full bg-[#2add0f] text-white rounded-full px-3 py-2 text-sm font-semibold
+                       shadow-md hover:bg-green-600 hover:scale-105 transition-all duration-300 mt-2">
+          <span class="inline-flex items-center justify-center gap-2">
+            <ion-icon name="chatbubble-outline" class="text-base"></ion-icon>
+            <span>Enviar Precio</span>
+          </span>
+        </button>
+
+        <button (click)="mostrarRuta(datos)"
+                class="w-full bg-white text-green-600 border border-green-500 rounded-full px-3 py-2 text-sm font-semibold
+                       hover:bg-green-50 hover:scale-105 transition-all duration-300">
+          <span class="inline-flex items-center justify-center gap-2">
+            <ion-icon name="map-outline" class="text-base"></ion-icon>
+            <span>Ver Ruta</span>
+          </span>
+        </button>
+        <p *ngIf="cuentaPendienteVerificacion" class="mt-1 text-center text-xs font-semibold text-amber-700">
+          Disponible cuando el administrador verifique y habilite tu cuenta.
+        </p>
+        </ng-container>
+      </div>
+
+    </ng-container>
+
+    <!-- ============== EN PROCESO ============== -->
+    <ng-container *ngIf="selectedSegment === 'enProceso'">
+
+      <div *ngIf="fletesEnProceso.length === 0" class="pedidos-empty">
+        No tienes fletes en proceso actualmente.
+      </div>
+
+      <div *ngFor="let flete of fletesEnProceso; trackBy: trackByFleteId" class="pedido-card">
+
+        <!-- Usuario -->
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-blue-500 flex-shrink-0">
+            <img [src]="flete.imagenFletero ? flete.imagenFletero : '../../../../../assets/person-outline.svg'" class="w-full h-full object-cover" />
+          </div>
+          <h4 class="text-base font-semibold">{{flete.nombre}} {{flete.apellido}}</h4>
+        </div>
+
+        <!-- Estado badge -->
+        <div class="flex justify-center">
+          <span *ngIf="flete.estado === 'Confirmado'"
+                class="bg-yellow-100 text-yellow-700 rounded-full px-4 py-1 text-xs font-semibold">
+            <ion-icon name="hourglass-outline" class="text-sm"></ion-icon> Confirmado — Esperando inicio
+          </span>
+          <span *ngIf="flete.estado === 'En Viaje'"
+                class="bg-blue-100 text-blue-700 rounded-full px-4 py-1 text-xs font-semibold">
+            <ion-icon name="bus-outline" class="text-sm"></ion-icon> En Viaje
+          </span>
+        </div>
+
+        <!-- Recordatorio -->
+        <div [class]="getRecordatorioClase(flete)">
+          <span class="recordatorio__icon">
+            <ion-icon name="alarm-outline" class="text-base"></ion-icon>
+          </span>
+          <span>{{ getRecordatorioInicio(flete) }}</span>
+        </div>
+
+        <!-- Fecha y Hora -->
+        <div class="flex justify-between items-center text-sm text-gray-500 mt-1">
+          <span class="inline-flex items-center gap-1">
+            <ion-icon name="calendar-outline" class="text-base"></ion-icon>
+            <span>{{ flete.fecha | date:'dd/MM/yyyy' }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1">
+            <ion-icon name="time-outline" class="text-base"></ion-icon>
+            <span>{{ flete.hora }}:{{ flete.minutos }}</span>
+          </span>
+        </div>
+
+        <!-- Ubicaciones -->
+        <div class="flex flex-col gap-1 text-sm text-gray-700 mt-1">
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="location-outline" class="text-base"></ion-icon>
+              <span>Desde</span>
+            </span>
+            <span class="font-semibold">{{flete.uDesde}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="flag-outline" class="text-base"></ion-icon>
+              <span>Hasta</span>
+            </span>
+            <span class="font-semibold">{{flete.uHasta}}</span>
+          </div>
+        </div>
+
+        <!-- Detalles del pedido -->
+        <div class="flex flex-col gap-1 mt-1 text-gray-700 text-sm">
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="cube-outline" class="text-base"></ion-icon>
+              <span>Cargamento</span>
+            </span>
+            <span class="font-semibold">{{flete.cargamento}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="pricetag-outline" class="text-base"></ion-icon>
+              <span>Servicio</span>
+            </span>
+            <span class="font-semibold rounded-full px-3 py-0.5 text-xs text-white"
+                  [ngClass]="{
+                    'bg-green-500': flete.tipoServicio === 'Carga y descarga',
+                    'bg-blue-500': flete.tipoServicio === 'Carga',
+                    'bg-orange-500': flete.tipoServicio === 'Descarga',
+                    'bg-gray-400': !flete.tipoServicio || flete.tipoServicio === 'Ninguno'
+                  }">
+              {{ flete.tipoServicio || 'No especificado' }}
+            </span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="people-outline" class="text-base"></ion-icon>
+              <span>Ayudantes</span>
+            </span>
+            <span class="font-semibold">{{flete.ayudantes}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="car-outline" class="text-base"></ion-icon>
+              <span>Tipo Vehículo</span>
+            </span>
+            <span class="font-semibold">{{flete.tipoVehiculo}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="cash-outline" class="text-base"></ion-icon>
+              <span>Precio</span>
+            </span>
+            <span class="font-semibold">${{flete.precioAceptado}}</span>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <button (click)="abrirViajeTracking(flete)"
+                class="w-full rounded-full px-3 py-2 text-sm font-semibold shadow-md transition-all duration-300 mt-2"
+                [ngClass]="flete.estado === 'Confirmado'
+                  ? 'bg-[#2add0f] text-white hover:bg-green-600 hover:scale-105'
+                  : 'bg-blue-500 text-white hover:bg-blue-600 hover:scale-105'">
+          <span class="inline-flex items-center justify-center gap-2">
+            <ion-icon [name]="flete.estado === 'Confirmado' ? 'rocket-outline' : 'navigate-outline'" class="text-base"></ion-icon>
+            <span>{{ flete.estado === 'Confirmado' ? 'Abrir mapa' : 'Ver viaje' }}</span>
+          </span>
+        </button>
+        <button (click)="abrirChatViaje(flete)"
+                class="w-full bg-white text-slate-700 border border-slate-200 rounded-full px-3 py-2 text-sm font-semibold
+                       hover:bg-slate-50 hover:scale-105 transition-all duration-300">
+          <span class="inline-flex items-center justify-center gap-2">
+            <ion-icon name="chatbubbles-outline" class="text-base"></ion-icon>
+            <span>Abrir chat</span>
+          </span>
+        </button>
+      </div>
+
+    </ng-container>
+
+    <!-- ============== FINALIZADOS ============== -->
+    <ng-container *ngIf="selectedSegment === 'finalizados'">
+
+      <div *ngIf="fletesFinalizados.length === 0" class="pedidos-empty">
+        No tienes fletes finalizados aún.
+      </div>
+
+      <div *ngFor="let flete of fletesFinalizados; trackBy: trackByFleteId" class="pedido-card">
+
+        <!-- Usuario -->
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-green-500 flex-shrink-0">
+            <img [src]="flete.imagenFletero ? flete.imagenFletero : '../../../../../assets/person-outline.svg'" class="w-full h-full object-cover" />
+          </div>
+          <h4 class="text-base font-semibold">{{flete.nombre}} {{flete.apellido}}</h4>
+        </div>
+
+        <!-- Estado badge -->
+        <div class="flex justify-center">
+          <span class="bg-green-100 text-green-700 rounded-full px-4 py-1 text-xs font-semibold">
+            <ion-icon name="checkmark-circle-outline" class="text-sm"></ion-icon> Viaje Finalizado
+          </span>
+        </div>
+
+        <!-- Fecha y Hora -->
+        <div class="flex justify-between items-center text-sm text-gray-500 mt-1">
+          <span class="inline-flex items-center gap-1">
+            <ion-icon name="calendar-outline" class="text-base"></ion-icon>
+            <span>{{ flete.fecha | date:'dd/MM/yyyy' }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1">
+            <ion-icon name="time-outline" class="text-base"></ion-icon>
+            <span>{{ flete.hora }}:{{ flete.minutos }}</span>
+          </span>
+        </div>
+
+        <!-- Ubicaciones -->
+        <div class="flex flex-col gap-1 text-sm text-gray-700 mt-1">
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="location-outline" class="text-base"></ion-icon>
+              <span>Desde</span>
+            </span>
+            <span class="font-semibold">{{flete.uDesde}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="flag-outline" class="text-base"></ion-icon>
+              <span>Hasta</span>
+            </span>
+            <span class="font-semibold">{{flete.uHasta}}</span>
+          </div>
+        </div>
+
+        <!-- Detalles del pedido -->
+        <div class="flex flex-col gap-1 mt-1 text-gray-700 text-sm">
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="cube-outline" class="text-base"></ion-icon>
+              <span>Cargamento</span>
+            </span>
+            <span class="font-semibold">{{flete.cargamento}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="pricetag-outline" class="text-base"></ion-icon>
+              <span>Servicio</span>
+            </span>
+            <span class="font-semibold rounded-full px-3 py-0.5 text-xs text-white"
+                  [ngClass]="{
+                    'bg-green-500': flete.tipoServicio === 'Carga y descarga',
+                    'bg-blue-500': flete.tipoServicio === 'Carga',
+                    'bg-orange-500': flete.tipoServicio === 'Descarga',
+                    'bg-gray-400': !flete.tipoServicio || flete.tipoServicio === 'Ninguno'
+                  }">
+              {{ flete.tipoServicio || 'No especificado' }}
+            </span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="people-outline" class="text-base"></ion-icon>
+              <span>Ayudantes</span>
+            </span>
+            <span class="font-semibold">{{flete.ayudantes}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="car-outline" class="text-base"></ion-icon>
+              <span>Tipo Vehículo</span>
+            </span>
+            <span class="font-semibold">{{flete.tipoVehiculo}}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="inline-flex items-center gap-1">
+              <ion-icon name="cash-outline" class="text-base"></ion-icon>
+              <span>Precio</span>
+            </span>
+            <span class="font-semibold">${{flete.precioAceptado}}</span>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    </div>
+  </section>
+
+<!-- Modal Enviar Precio -->
+<ion-modal class="precio-modal" [isOpen]="isPrecioModalOpen" (didDismiss)="cancelarPrecioModal()">
+  <ng-template>
+    <ion-header class="precio-modal__header">
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <span class="precio-modal__title-icon">
+            <ion-icon [name]="precioStep === 'input' ? 'cash-outline' : 'shield-checkmark-outline'"></ion-icon>
+          </span>
+        </ion-buttons>
+        <ion-title>{{ precioStep === 'input' ? 'Enviar Precio' : 'Confirmar Envío' }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button class="precio-modal__close" (click)="cancelarPrecioModal()" aria-label="Cerrar modal">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="precio-modal__content">
+      <div *ngIf="precioPendingData" class="precio-modal__body">
+
+        <!-- Paso 1: Ingresar precio y mensaje -->
+        <div *ngIf="precioStep === 'input'">
+          <div class="precio-modal__headline">
+            <span class="precio-modal__headline-icon">
+              <ion-icon name="wallet-outline"></ion-icon>
+            </span>
+            <div>
+              <h3>Ingresa tu precio</h3>
+              <p>Revisa los datos del pedido antes de enviar tu propuesta.</p>
+            </div>
+          </div>
+          <!-- Info del pedido -->
+          <div class="precio-modal__summary bg-gray-50 rounded-xl p-4 text-sm mb-4">
+            <div class="precio-modal__summary-row">
+              <ion-icon name="person-outline"></ion-icon>
+              <p><strong>Cliente</strong><span>{{ precioPendingData.datos.nombre }} {{ precioPendingData.datos.apellido }}</span></p>
+            </div>
+            <div class="precio-modal__summary-row">
+              <ion-icon name="location-outline"></ion-icon>
+              <p><strong>Desde</strong><span>{{ precioPendingData.datos.uDesde }}</span></p>
+            </div>
+            <div class="precio-modal__summary-row">
+              <ion-icon name="flag-outline"></ion-icon>
+              <p><strong>Hasta</strong><span>{{ precioPendingData.datos.uHasta }}</span></p>
+            </div>
+            <div class="precio-modal__summary-row">
+              <ion-icon name="cube-outline"></ion-icon>
+              <p><strong>Cargamento</strong><span>{{ precioPendingData.datos.cargamento }}</span></p>
+            </div>
+          </div>
+
+          <!-- Input precio -->
+          <div class="precio-modal__field mb-3">
+            <label class="text-sm font-semibold text-gray-700 mb-1 block">
+              <ion-icon name="cash-outline"></ion-icon>
+              <span>Precio ($)</span>
+            </label>
+            <ion-input type="number" placeholder="Ej: 15000" [(ngModel)]="precioInput"
+                       class="bg-slate-100 rounded-lg"></ion-input>
+          </div>
+
+          <!-- Input mensaje -->
+          <div class="precio-modal__field mb-3">
+            <label class="text-sm font-semibold text-gray-700 mb-1 block">
+              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+              <span>Mensaje opcional</span>
+            </label>
+            <ion-textarea rows="3" placeholder="Escribe un mensaje de presentación..." [(ngModel)]="mensajeInput"
+                          class="bg-slate-100 rounded-lg"></ion-textarea>
+          </div>
+
+          <button (click)="calcularComision()"
+                  [disabled]="!precioInput || precioInput <= 0"
+                  class="w-full py-2 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition-all duration-300
+                         disabled:bg-gray-300 disabled:cursor-not-allowed mt-2">
+            <span>Continuar</span>
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- Paso 2: Confirmar con desglose -->
+        <div *ngIf="precioStep === 'confirm'">
+          <div class="precio-modal__headline">
+            <span class="precio-modal__headline-icon">
+              <ion-icon name="calculator-outline"></ion-icon>
+            </span>
+            <div>
+              <h3>Confirmar precio</h3>
+              <p>Este es el importe que vera el cliente.</p>
+            </div>
+          </div>
+          <div class="precio-modal__summary precio-modal__summary--compact bg-gray-50 rounded-xl p-4 text-sm mb-4">
+            <div class="precio-modal__summary-row">
+              <ion-icon name="person-outline"></ion-icon>
+              <p><strong>Cliente</strong><span>{{ precioPendingData.datos.nombre }} {{ precioPendingData.datos.apellido }}</span></p>
+            </div>
+            <div class="precio-modal__summary-row">
+              <ion-icon name="location-outline"></ion-icon>
+              <p><strong>Desde</strong><span>{{ precioPendingData.datos.uDesde }}</span></p>
+            </div>
+            <div class="precio-modal__summary-row">
+              <ion-icon name="flag-outline"></ion-icon>
+              <p><strong>Hasta</strong><span>{{ precioPendingData.datos.uHasta }}</span></p>
+            </div>
+          </div>
+
+          <div class="precio-modal__breakdown-card">
+            <div>
+              <span><ion-icon name="cash-outline"></ion-icon> Precio ingresado</span>
+              <strong>${{ precioInput }}</strong>
+            </div>
+            <div>
+              <span><ion-icon name="trending-down-outline"></ion-icon> Comision TuFleteYa (15%)</span>
+              <strong class="precio-modal__discount">-${{ precioComision.toFixed(2) }}</strong>
+            </div>
+            <div class="precio-modal__breakdown-total">
+              <span><ion-icon name="checkmark-circle-outline"></ion-icon> Total que recibis</span>
+              <strong>${{ precioNeto.toFixed(2) }}</strong>
+            </div>
+          </div>
+
+          <div *ngIf="mensajeInput" class="precio-modal__message-preview">
+            <p><ion-icon name="document-text-outline"></ion-icon> Tu mensaje</p>
+            <span>"{{ mensajeInput }}"</span>
+          </div>
+
+          <p class="precio-modal__hint">Al confirmar, el usuario vera tu precio y podra aceptarlo.</p>
+
+          <div class="precio-modal__actions flex gap-3">
+            <button (click)="precioStep = 'input'"
+                    class="precio-modal__secondary-action flex-1 py-2 rounded-lg border border-gray-300 text-gray-600 font-semibold hover:bg-gray-100">
+              <ion-icon name="arrow-back-outline"></ion-icon>
+              <span>Volver</span>
+            </button>
+            <button (click)="confirmarEnvioPrecio()"
+                    [disabled]="enviandoPrecio"
+                    class="precio-modal__confirm-action flex-1 py-2 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-600
+                           disabled:bg-gray-300 disabled:cursor-not-allowed">
+              <span>{{ enviandoPrecio ? 'Enviando...' : 'Confirmar' }}</span>
+              <ion-icon name="send-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+</div>

@@ -1,0 +1,89 @@
+<section class="space-y-6">
+  <div class="rounded-[28px] bg-white/90 p-6 shadow-[0_20px_45px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Gestión de usuarios</p>
+    <h2 class="mt-2 text-3xl font-extrabold text-slate-900">Usuarios de la plataforma</h2>
+    <p class="mt-2 text-sm text-slate-500">Control de cuentas, score de confianza y penalizaciones pendientes de revisión administrativa.</p>
+  </div>
+
+  <div *ngIf="cargando" class="mt-10 flex justify-center">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <div *ngIf="!cargando" class="overflow-hidden rounded-[28px] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <div class="border-b border-slate-100 p-5">
+      <h2 class="text-xl font-semibold text-slate-900">Listado operativo</h2>
+      <p class="mt-1 text-sm text-slate-500">Vista consolidada de datos personales, métricas y alertas activas.</p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-100 text-left">
+          <tr>
+            <th class="px-4 py-2">Nombre</th>
+            <th class="px-4 py-2">Email</th>
+            <th class="px-4 py-2">DNI</th>
+            <th class="px-4 py-2">Teléfono</th>
+            <th class="px-4 py-2">Provincia</th>
+            <th class="px-4 py-2 text-center">Pendiente admin</th>
+            <th class="px-4 py-2">Último motivo</th>
+            <th class="px-4 py-2 text-center">Score</th>
+            <th class="px-4 py-2 text-center">Tasa finalización</th>
+            <th class="px-4 py-2 text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let u of usuarios" class="border-b hover:bg-gray-50">
+            <td class="px-4 py-2 font-medium">
+              {{ u.nombre }} {{ u.apellido }}
+            </td>
+
+            <td class="px-4 py-2">
+              {{ u.email }}
+            </td>
+
+            <td class="px-4 py-2">
+              {{ u.dni || '-' }}
+            </td>
+
+            <td class="px-4 py-2">
+              {{ u.telefono || '-' }}
+            </td>
+
+            <td class="px-4 py-2">
+              {{ u.provincia || '-' }}
+            </td>
+
+            <td class="px-4 py-2 text-center">
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+                    [ngClass]="u.alertasPendientesCount ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'">
+                {{ u.alertasPendientesCount ? (u.alertasPendientesCount + ' pendiente/s') : 'sin pendientes' }}
+              </span>
+            </td>
+
+            <td class="px-4 py-2">
+              {{ u.alertaPendiente?.motivo || u.ultimoMotivoPenalizacion || '-' }}
+            </td>
+
+            <td class="px-4 py-2 text-center font-semibold">
+              {{ u.scoreConfiabilidadUsuario ?? 100 }}
+            </td>
+
+            <td class="px-4 py-2 text-center">
+              {{ u.tasaFinalizacion ?? 100 }}%
+            </td>
+
+            <td class="px-4 py-2 text-center">
+              <button *ngIf="u.alertaPendiente?.id"
+                      class="rounded-lg bg-sky-600 px-3 py-2 text-xs font-semibold text-white"
+                      (click)="despenalizarUsuario(u)">
+                Despenalizar
+              </button>
+              <span *ngIf="!u.alertaPendiente?.id" class="text-xs text-slate-400">Sin acción</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

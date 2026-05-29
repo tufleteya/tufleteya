@@ -1,0 +1,344 @@
+.background2 {
+  --ion-background-color: linear-gradient(120deg, #0b3a47 0%, #066650 55%, #083746 100%);
+}
+
+:host {
+  display: block;
+}
+
+ion-content.background2 {
+  --padding-top: 0;
+  --padding-bottom: 32px;
+}
+
+ion-segment {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: min(100% - 24px, 820px);
+  margin: 16px auto 0;
+  padding: 8px;
+  border-radius: 22px;
+  background: rgba(9, 31, 41, 0.62);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+
+ion-segment-button {
+  min-height: 44px;
+  --background: transparent;
+  --background-checked: rgba(255, 255, 255, 0.12);
+  --indicator-color: transparent;
+  --border-radius: 999px;
+  border-radius: 999px;
+}
+
+ion-segment-button ion-icon,
+ion-segment-button ion-label {
+  color: #fff !important;
+}
+
+.u-section-1 .u-sheet-1 {
+  width: min(100%, 980px);
+  min-height: auto;
+  margin: 0 auto;
+  padding: 18px 16px 40px;
+}
+
+.u-section-1 .u-group-1 {
+  width: min(100%, 820px);
+  min-height: auto;
+  margin: 16px auto 0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 24px 60px rgba(2, 20, 22, 0.25);
+  overflow: hidden;
+}
+
+.u-section-1 .u-container-layout-1 {
+  padding: 0;
+}
+
+.register-panel {
+  padding: 24px;
+}
+
+.register-hero {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.register-hero h2 {
+  margin: 0;
+  color: #10202a;
+  font-size: clamp(1.6rem, 1.2rem + 1vw, 2.2rem);
+  line-height: 1.15;
+}
+
+.register-hero p,
+.register-note {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.register-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #eafff6;
+  background: linear-gradient(135deg, #0f766e, #16a34a);
+}
+
+.u-section-1 .u-form-1 {
+  width: 100%;
+  height: auto;
+  margin: 0;
+  background: transparent;
+}
+
+.u-section-1 form {
+  display: grid;
+  gap: 14px;
+  padding: 22px !important;
+}
+
+.u-section-1 .u-form-group {
+  margin: 0;
+}
+
+.u-section-1 .u-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #10202a;
+}
+
+.u-section-1 .u-input,
+.u-section-1 ion-select,
+.u-section-1 select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #0f172a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.u-section-1 .u-input:focus,
+.u-section-1 select:focus {
+  outline: 2px solid rgba(20, 184, 166, 0.22);
+  border-color: rgba(13, 148, 136, 0.75);
+}
+
+.u-section-1 .u-btn,
+.u-section-1 a.u-btn {
+  min-height: 48px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 22px;
+  line-height: 1.2;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.u-section-1 .u-btn-1 {
+  color: #08311f !important;
+  background: linear-gradient(135deg, #16c06d, #7ddfa8) !important;
+  box-shadow: 0 12px 28px rgba(22, 192, 109, 0.24);
+}
+
+.u-section-1 .u-btn-2 {
+  color: #0f2330 !important;
+  background: rgba(12, 49, 62, 0.08) !important;
+  box-shadow: none;
+}
+
+.error-message {
+  margin-top: 6px;
+  color: #c0392b;
+  font-size: 0.92rem;
+}
+
+.register-note {
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(15, 118, 110, 0.05));
+  border: 1px solid rgba(20, 184, 166, 0.12);
+}
+
+.register-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.register-actions > * {
+  flex: 0 0 auto;
+}
+
+.register-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.register-status-pill {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 42px;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #475569;
+  background: rgba(226, 232, 240, 0.7);
+}
+
+.register-status-ready {
+  color: #0f5132;
+  background: rgba(134, 239, 172, 0.8);
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-consent {
+  display: grid !important;
+  grid-template-columns: 24px 1fr;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: 16px;
+  background: #f0fdfa;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-consent input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-consent .u-label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4px;
+  margin: 0;
+  color: #334155 !important;
+  font-size: 0.95rem;
+  font-weight: 750;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-consent a {
+  color: #047857;
+  font-weight: 900;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-accordion {
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-accordion ion-item {
+  --background: #ffffff;
+  --color: #0f172a;
+  --min-height: 54px;
+  --inner-padding-end: 14px;
+  font-weight: 900;
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-accordion .ion-padding {
+  color: #475569;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  background: #f8fafc;
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-accordion h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+:host ::ng-deep ion-content.register-ux .u-section-1 .legal-accordion p {
+  margin: 0 0 8px;
+}
+
+@media (min-width: 720px) {
+  .u-section-1 form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .u-section-1 .u-form-group:not(.u-form-partition-factor-2),
+  .register-hero,
+  .register-note,
+  .register-actions,
+  ion-accordion-group,
+  .register-status-grid {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 575px) {
+  ion-segment {
+    position: static;
+    width: calc(100% - 20px);
+    margin: 12px auto 14px;
+    padding: 6px;
+    border-radius: 18px;
+  }
+
+  ion-segment-button {
+    min-height: 50px;
+    padding-inline: 4px;
+  }
+
+  ion-segment-button ion-icon {
+    font-size: 1rem;
+  }
+
+  ion-segment-button ion-label {
+    font-size: 0.74rem;
+    line-height: 1.08;
+    white-space: normal;
+  }
+
+  .u-section-1 .u-sheet-1 {
+    padding-top: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .u-section-1 .u-group-1 {
+    margin-top: 10px;
+  }
+
+  .register-panel {
+    padding: 18px 14px;
+  }
+
+  .register-actions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,100 @@
+<ion-content class="bg-gray-50">
+  <!-- Segmento opcional -->
+  <!-- 
+  <ion-segment [(ngModel)]="selectedSegment">
+    <ion-segment-button value="seccion1">Pedidos</ion-segment-button>
+    <ion-segment-button value="seccion2">Sección 2</ion-segment-button>
+  </ion-segment>
+  -->
+
+  <div [ngSwitch]="selectedSegment">
+
+    <!-- SECCIÓN 1 -->
+    <ion-list *ngSwitchCase="'seccion1'" class="px-4 py-2">
+      
+      <!-- Lista de Fletes -->
+      <ion-item
+        *ngFor="let datos of fletes"
+        class="my-3 rounded-xl shadow-md bg-white hover:bg-gray-100 transition-all duration-200"
+      >
+        <ion-avatar slot="start" class="border border-gray-300">
+          <img [src]="datos.image" alt="Foto de {{ datos.nombre }}" />
+        </ion-avatar>
+
+        <ion-label class="flex flex-col gap-1">
+          <h2 class="font-bold text-gray-800">{{ datos.nombre }} {{ datos.apellido }}</h2>
+
+          <p class="text-sm text-gray-500">
+            {{ datos.uDesde }} → {{ datos.uHasta }}
+          </p>
+
+          <p class="text-xs text-gray-400">
+            {{ datos.fecha | date: 'dd-MM-yyyy' }} // {{ datos.hora }}:{{ datos.minutos }}
+          </p>
+
+          <div class="flex flex-wrap gap-2 mt-2">
+            <ion-badge color="tertiary">{{ datos.cargamento }}</ion-badge>
+            <ion-badge color="success">{{ datos.ayudantes }} ayudantes</ion-badge>
+            <ion-badge color="warning">{{ datos.tipoVehiculo }}</ion-badge>
+          </div>
+        </ion-label>
+
+        <ion-buttons slot="end" class="flex flex-col items-end">
+          <ion-button
+            size="small"
+            fill="outline"
+            color="primary"
+            (click)="mostrarRuta(datos)"
+          >
+            Ver Ruta
+          </ion-button>
+
+          <ion-button
+            size="small"
+            class="mt-2"
+            color="success"
+            (click)="precioInputChanged(datos.id, datos.precioEnviado, datos)"
+          >
+            Enviar Precio
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+
+      <!-- Mensaje de bienvenida -->
+      <ion-card class="mt-6 bg-gradient-to-r from-green-100 to-green-50 shadow-sm">
+        <ion-card-header>
+          <ion-card-title>TuFleteYa</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>¡Saludos de parte de <strong class="text-green-600">TuFleteYa</strong>!</p>
+          <p class="mt-2">En esta sección podrás acceder a todos los <strong>pedidos</strong>.</p>
+          <p>Responde con un precio razonable, tu oferta competirá con otros fleteros.</p>
+          <p class="text-sm italic text-gray-500 mt-1">Esta es una versión demo.</p>
+
+          <ion-button
+            expand="block"
+            color="primary"
+            class="mt-4"
+            (click)="atras()"
+          >
+            Volver al inicio
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Recordatorio -->
+      <ion-card class="mt-4 bg-blue-50 border border-blue-200">
+        <ion-card-header>
+          <ion-card-title>¡Recuerda!</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Estás utilizando la versión demo de <strong>TuFleteYa</strong>.</p>
+          <p class="mt-2">
+            Tus comentarios y críticas constructivas nos ayudan a mejorar nuestro servicio.
+          </p>
+        </ion-card-content>
+      </ion-card>
+
+    </ion-list>
+  </div>
+</ion-content>

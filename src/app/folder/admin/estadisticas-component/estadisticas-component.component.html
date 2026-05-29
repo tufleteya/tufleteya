@@ -1,0 +1,288 @@
+<section class="space-y-6">
+  <div class="rounded-[28px] bg-white/90 p-6 shadow-[0_20px_45px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Monitoreo de riesgo</p>
+    <h2 class="mt-2 text-3xl font-extrabold text-slate-900">Reportes y confiabilidad</h2>
+    <p class="mt-2 text-sm text-slate-500">Indicadores de cancelación, sanciones y alertas pendientes para decisiones operativas más rápidas.</p>
+  </div>
+
+  <div *ngIf="cargando" class="flex justify-center mt-10">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!cargando">
+    <div class="mb-6 flex flex-col gap-3 rounded-2xl bg-white p-5 shadow">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Reportes, cancelaciones y riesgo operativo</h1>
+        <p class="text-sm text-slate-500">Panel para monitorear reincidencia, score de confiabilidad y sanciones automáticas.</p>
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <input [(ngModel)]="busqueda" (ngModelChange)="onFilterChange()" type="text" placeholder="Buscar por fletero, motivo o ruta" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400" />
+        <input [(ngModel)]="fechaDesde" (ngModelChange)="onFilterChange()" type="date" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400" />
+        <input [(ngModel)]="fechaHasta" (ngModelChange)="onFilterChange()" type="date" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400" />
+        <select [(ngModel)]="filtroProvincia" (ngModelChange)="onFilterChange()" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400">
+          <option value="todas">Todas las provincias</option>
+          <option *ngFor="let provincia of provinciasDisponibles" [value]="provincia">{{ provincia }}</option>
+        </select>
+        <input [(ngModel)]="filtroZona" (ngModelChange)="onFilterChange()" type="text" placeholder="Zona por origen/destino" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400" />
+        <select [(ngModel)]="filtroEtapa" (ngModelChange)="onFilterChange()" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400">
+          <option value="todas">Todas las etapas</option>
+          <option value="antes_de_iniciar">Antes de iniciar</option>
+          <option value="en_viaje">En viaje</option>
+        </select>
+        <select [(ngModel)]="filtroSancion" (ngModelChange)="onFilterChange()" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400">
+          <option value="todas">Todas las sanciones</option>
+          <option value="normal">Normal</option>
+          <option value="advertencia">Advertencia</option>
+          <option value="suspension_automatica">Suspensión automática</option>
+          <option value="bloqueado_revision">Bloqueado revisión</option>
+          <option value="bloqueo_manual">Bloqueo manual</option>
+        </select>
+        <select [(ngModel)]="filtroVistaReporte" (ngModelChange)="onFilterChange()" class="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400">
+          <option value="todas">Vista completa</option>
+          <option value="solo_alertas_usuario">Solo alertas pendientes de usuario</option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="filtroVistaReporte !== 'solo_alertas_usuario'" class="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-8">
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Cancelaciones</p><p class="text-3xl font-bold text-slate-900">{{ totalCancelaciones }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Antes de iniciar</p><p class="text-3xl font-bold text-amber-600">{{ cancelacionesAntesDeIniciar }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">En viaje</p><p class="text-3xl font-bold text-rose-600">{{ cancelacionesEnViaje }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Cerca destino</p><p class="text-3xl font-bold text-orange-600">{{ cancelacionesSospechosasCercaDestino }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Score fleteros</p><p class="text-3xl font-bold text-sky-600">{{ scorePromedio }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Score usuarios</p><p class="text-3xl font-bold text-indigo-600">{{ scoreUsuarioPromedio }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Tasa finalización fletero</p><p class="text-3xl font-bold text-emerald-600">{{ tasaFinalizacionFleteroPromedio }}%</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Tasa finalización usuario</p><p class="text-3xl font-bold text-cyan-600">{{ tasaFinalizacionUsuarioPromedio }}%</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Fleteros alertados</p><p class="text-3xl font-bold text-yellow-600">{{ fleterosConAlerta }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Suspendidos o bloqueados</p><p class="text-3xl font-bold text-rose-700">{{ fleterosSuspendidos }}</p></div>
+      <div class="rounded-2xl bg-white p-4 shadow"><p class="text-sm text-slate-500">Usuarios pendientes</p><p class="text-3xl font-bold text-amber-700">{{ usuariosConPenalizacionPendiente }}</p></div>
+    </div>
+
+    <div *ngIf="filtroVistaReporte !== 'solo_alertas_usuario'" class="mb-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <div class="rounded-2xl bg-white shadow">
+        <div class="border-b border-slate-100 px-5 py-4">
+          <h2 class="text-lg font-semibold text-slate-900">Fleteros con mayor riesgo</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50 text-left text-slate-600">
+              <tr>
+                <th class="px-4 py-3">Fletero</th>
+                <th class="px-4 py-3 text-center">Score</th>
+                <th class="px-4 py-3 text-center">Cancelaciones</th>
+                <th class="px-4 py-3 text-center">Sanción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of fleterosRiesgo" class="border-b border-slate-100">
+                <td class="px-4 py-3">
+                  <div class="font-semibold text-slate-900">{{ item.nombreCompleto }}</div>
+                  <div class="text-xs text-slate-500">{{ item.email }}</div>
+                </td>
+                <td class="px-4 py-3 text-center font-semibold">{{ item.scoreConfiabilidad ?? 100 }}</td>
+                <td class="px-4 py-3 text-center">{{ item.cancelacionesTotal ?? 0 }}</td>
+                <td class="px-4 py-3 text-center">
+                  <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getSancionClass(item.bloqueoManualAdmin ? 'bloqueo_manual' : item.estadoSancion)">
+                    {{ item.bloqueoManualAdmin ? 'bloqueo_manual' : (item.estadoSancion || 'normal') }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white shadow">
+        <div class="border-b border-slate-100 px-5 py-4">
+          <h2 class="text-lg font-semibold text-slate-900">Motivos más frecuentes</h2>
+        </div>
+        <div class="space-y-3 p-5">
+          <div *ngFor="let motivo of topMotivos" class="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3">
+            <span class="text-sm font-medium text-slate-700">{{ motivo.motivo }}</span>
+            <span class="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">{{ motivo.cantidad }}</span>
+          </div>
+          <p *ngIf="topMotivos.length === 0" class="text-sm text-slate-500">No hay cancelaciones para los filtros seleccionados.</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtroVistaReporte !== 'solo_alertas_usuario'" class="rounded-2xl bg-white shadow">
+      <div class="border-b border-slate-100 px-5 py-4">
+        <h2 class="text-lg font-semibold text-slate-900">Historial reciente de cancelaciones</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-left text-slate-600">
+            <tr>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Fletero</th>
+              <th class="px-4 py-3">Ruta</th>
+              <th class="px-4 py-3">Provincia</th>
+              <th class="px-4 py-3">Motivo</th>
+              <th class="px-4 py-3 text-center">Riesgo</th>
+              <th class="px-4 py-3 text-center">Etapa</th>
+              <th class="px-4 py-3 text-center">Score</th>
+              <th class="px-4 py-3 text-center">Sanción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of cancelacionesFiltradas" class="border-b border-slate-100 align-top">
+              <td class="px-4 py-3 whitespace-nowrap">{{ item.fechaCancelacion | date:'short' }}</td>
+              <td class="px-4 py-3">
+                <div class="font-semibold text-slate-900">{{ item.fleteroNombre }}</div>
+                <div class="text-xs text-slate-500">{{ item.fleteroId }}</div>
+              </td>
+              <td class="px-4 py-3 text-slate-600">{{ item.route?.desde || 'Origen' }} → {{ item.route?.hasta || 'Destino' }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ item.provinciaFletero || item.provinciaUsuario || '-' }}</td>
+              <td class="px-4 py-3 text-slate-700">{{ item.motivo }}</td>
+              <td class="px-4 py-3 text-center">
+                <span *ngIf="item.antifraude?.sospechosa" class="inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+                  {{ item.antifraude?.distanciaDestinoMetros }}m
+                </span>
+                <span *ngIf="!item.antifraude?.sospechosa" class="text-slate-400">-</span>
+              </td>
+              <td class="px-4 py-3 text-center">{{ item.etapa }}</td>
+              <td class="px-4 py-3 text-center font-semibold">{{ item.scoreConfiabilidad }}</td>
+              <td class="px-4 py-3 text-center">
+                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getSancionClass(item.estadoSancion)">
+                  {{ item.estadoSancion }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="cancelacionesFiltradas.length === 0" class="px-5 py-8 text-center text-sm text-slate-500">
+          No hay eventos de cancelación para los filtros actuales.
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 rounded-2xl bg-white shadow">
+      <div class="border-b border-slate-100 px-5 py-4">
+        <h2 class="text-lg font-semibold text-slate-900">Alertas pendientes de usuarios</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-left text-slate-600">
+            <tr>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Usuario</th>
+              <th class="px-4 py-3">Motivo</th>
+              <th class="px-4 py-3">Zona</th>
+              <th class="px-4 py-3 text-center">Etapa</th>
+              <th class="px-4 py-3 text-center">Score</th>
+              <th class="px-4 py-3 text-center">Tasa finalización</th>
+              <th class="px-4 py-3 text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of alertasUsuariosPendientesFiltradas" class="border-b border-slate-100 align-top">
+              <td class="px-4 py-3 whitespace-nowrap">{{ item.fecha | date:'short' }}</td>
+              <td class="px-4 py-3">
+                <div class="font-semibold text-slate-900">{{ item.usuarioNombreVista }}</div>
+                <div class="text-xs text-slate-500">{{ item.usuarioId }}</div>
+              </td>
+              <td class="px-4 py-3 text-slate-700">{{ item.motivo }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ item.zonaTexto || '-' }}</td>
+              <td class="px-4 py-3 text-center">{{ item.etapa }}</td>
+              <td class="px-4 py-3 text-center font-semibold">{{ item.scoreConfiabilidadUsuario }}</td>
+              <td class="px-4 py-3 text-center">{{ item.tasaFinalizacion }}%</td>
+              <td class="px-4 py-3 text-center">
+                <button class="rounded-lg bg-sky-600 px-3 py-2 text-xs font-semibold text-white" (click)="despenalizarDesdeReportes(item)">
+                  Despenalizar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="alertasUsuariosPendientesFiltradas.length === 0" class="px-5 py-8 text-center text-sm text-slate-500">
+          No hay alertas pendientes de usuarios para los filtros actuales.
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtroVistaReporte !== 'solo_alertas_usuario'" class="mt-6 rounded-2xl bg-white shadow">
+      <div class="border-b border-slate-100 px-5 py-4">
+        <h2 class="text-lg font-semibold text-slate-900">Historial de cambios de sanción</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-left text-slate-600">
+            <tr>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Fletero</th>
+              <th class="px-4 py-3">Acción</th>
+              <th class="px-4 py-3">Motivo</th>
+              <th class="px-4 py-3 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of historialSancionesFiltrado" class="border-b border-slate-100 align-top">
+              <td class="px-4 py-3 whitespace-nowrap">{{ item.fecha | date:'short' }}</td>
+              <td class="px-4 py-3">
+                <div class="font-semibold text-slate-900">{{ item.fleteroNombre }}</div>
+                <div class="text-xs text-slate-500">{{ item.actor }}</div>
+              </td>
+              <td class="px-4 py-3 text-slate-700">{{ item.accion }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ item.motivo || item.detalle || '-' }}</td>
+              <td class="px-4 py-3 text-center">
+                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getSancionClass(item.estadoVista)">
+                  {{ item.estadoVista }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="historialSancionesFiltrado.length === 0" class="px-5 py-8 text-center text-sm text-slate-500">
+          No hay cambios de sanción para los filtros actuales.
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 rounded-2xl bg-white shadow">
+      <div class="border-b border-slate-100 px-5 py-4">
+        <h2 class="text-lg font-semibold text-slate-900">Historial de penalizaciones y despenalizaciones de usuarios</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-left text-slate-600">
+            <tr>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Usuario</th>
+              <th class="px-4 py-3">Acción</th>
+              <th class="px-4 py-3">Motivo</th>
+              <th class="px-4 py-3 text-center">Etapa</th>
+              <th class="px-4 py-3 text-center">Score</th>
+              <th class="px-4 py-3">Admin / Pantalla</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of historialPenalizacionesUsuariosFiltrado" class="border-b border-slate-100 align-top">
+              <td class="px-4 py-3 whitespace-nowrap">{{ item.fecha | date:'short' }}</td>
+              <td class="px-4 py-3">
+                <div class="font-semibold text-slate-900">{{ item.usuarioNombreVista }}</div>
+                <div class="text-xs text-slate-500">{{ item.actor }}</div>
+              </td>
+              <td class="px-4 py-3 text-slate-700">{{ item.accion }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ item.detalle || item.motivo }}</td>
+              <td class="px-4 py-3 text-center">{{ item.etapa }}</td>
+              <td class="px-4 py-3 text-center">{{ item.scoreAnterior ?? '-' }} → {{ item.scoreNuevo ?? '-' }}</td>
+              <td class="px-4 py-3 text-slate-600">
+                <div>{{ item.actorEmail || item.actor }}</div>
+                <div class="text-xs text-slate-500">{{ item.origenPantalla || 'sistema' }}</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="historialPenalizacionesUsuariosFiltrado.length === 0" class="px-5 py-8 text-center text-sm text-slate-500">
+          No hay historial de penalizaciones de usuarios para los filtros actuales.
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</section>

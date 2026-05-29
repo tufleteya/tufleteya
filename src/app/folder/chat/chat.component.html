@@ -1,0 +1,132 @@
+<app-header></app-header>
+
+<section class="chat-shell flex background2 flex-col justify-between bg-white shadow-md rounded-2xl w-full max-w-3xl mx-auto p-4 h-[85vh]">
+
+  <!-- HEADER -->
+  <div class="chat-header flex items-center justify-between border-b border-gray-200 pb-3 mb-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-green-500 flex-shrink-0 bg-white">
+        <img src="../../../../../assets/person-outline.svg"
+             alt="Chat"
+             class="w-full h-full object-cover">
+      </div>
+
+      <div class="flex flex-col min-w-0">
+        <h2 class="text-sm font-semibold text-gray-800 truncate">
+          {{ otroParticipanteNombre || fleteroNombre || 'Chat del viaje' }}
+        </h2>
+        <span class="text-xs" [ngClass]="chatEstado === 'activo' ? 'text-green-600' : 'text-slate-500'">
+          {{ estadoChatLabel }}
+        </span>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      (click)="verPerfilParticipante()"
+      [disabled]="!canOpenParticipantProfile"
+      class="ml-2 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-2 text-xs font-semibold text-emerald-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">
+      <ion-icon name="person-circle-outline" class="text-base"></ion-icon>
+      {{ profileButtonLabel }}
+    </button>
+  </div>
+
+  <!-- ESCRIBIENDO -->
+  <p *ngIf="fleteroEscribiendo"
+     class="text-xs text-gray-500 mb-2 animate-pulse">
+    {{ otroParticipanteNombre || fleteroNombre || 'La otra persona' }} está escribiendo...
+  </p>
+
+  <!-- MENSAJES -->
+  <div class="chat-messages flex-1 overflow-y-auto space-y-3 mb-3 px-1 scrollbar-thin" id="mensajesContainer">
+
+    <div *ngFor="let msg of mensajes$ | async; trackBy: trackByMensajeId"
+         class="flex animate-fade-in"
+         [ngClass]="{
+           'justify-end': msg.senderId === currentUserId,
+           'justify-start': msg.senderId !== currentUserId
+         }">
+
+      <div
+        class="max-w-[78%] px-3 py-2 shadow-md chat-bubble"
+        [ngClass]="{
+          'bg-green-500 text-white rounded-tl-2xl rounded-bl-2xl rounded-tr-md ml-auto':
+            msg.senderId === currentUserId,
+          'bg-gray-100 text-gray-900 rounded-tr-2xl rounded-br-2xl rounded-tl-md':
+            msg.senderId !== currentUserId
+        }">
+
+        <!-- Nombre SOLO fletero -->
+        <div *ngIf="msg.senderId !== currentUserId"
+             class="text-[11px] font-semibold text-gray-600 mb-1">
+          {{ otroParticipanteNombre || fleteroNombre || 'Contacto' }}
+        </div>
+
+        {{ msg.text }}
+
+        <!-- Hora + visto -->
+        <div
+          class="flex items-center gap-1 mt-1 text-[10px]"
+          [ngClass]="{
+            'justify-end': msg.senderId === currentUserId,
+            'justify-start text-gray-500': msg.senderId !== currentUserId
+          }"
+        >
+          <span
+            [ngClass]="{
+              'text-white': msg.senderId === currentUserId,
+              'text-gray-500': msg.senderId !== currentUserId
+            }"
+          >
+            {{ getFecha(msg.timestamp) | date:'shortTime' }}
+          </span>
+
+          <!-- SOLO MIS MENSAJES -->
+          <span *ngIf="msg.senderId === currentUserId"
+                [ngClass]="msg.leido ? 'text-blue-200 font-semibold' : 'text-white/80'">
+            {{ msg.leido ? '✔✔' : '✔' }}
+          </span>
+        </div>
+
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AVISO SI CERRADO -->
+  <div *ngIf="chatEstado === 'cerrado'" class="text-center text-red-500 text-sm mb-2">
+    Este chat está finalizado. No se pueden enviar mensajes.
+  </div>
+
+  <div *ngIf="chatEstado === 'activo'" class="chat-suggestions mb-3">
+    <p class="text-[11px] uppercase tracking-[0.16em] font-semibold text-slate-500 mb-2">
+      Mensajes rápidos
+    </p>
+    <div class="flex flex-wrap gap-2">
+      <button
+        *ngFor="let sugerencia of mensajesRapidos; trackBy: trackByTexto"
+        type="button"
+        class="chat-chip"
+        (click)="usarMensajeRapido(sugerencia)">
+        {{ sugerencia }}
+      </button>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="flex items-center gap-2 mt-auto">
+    <ion-input
+      [(ngModel)]="nuevoMensaje"
+      [placeholder]="mensajePlaceholder"
+      class="flex-1 chat-input bg-gray-100 rounded-full px-4 py-2 text-sm"
+      (ionInput)="onTyping()"
+      [disabled]="chatEstado !== 'activo'">
+    </ion-input>
+
+    <ion-button color="success" shape="round" (click)="enviarMensaje()" [disabled]="chatEstado !== 'activo'">
+      Enviar 💬
+    </ion-button>
+  </div>
+
+</section>

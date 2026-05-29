@@ -1,0 +1,137 @@
+<ion-app class="background2">
+  <ion-menu contentId="main-content" type="overlay">
+      <ion-toolbar>
+        <div class="logo-container" slot="start">
+          <img
+            src="assets/icon/favicon4.webp"
+            alt="TuFleteYa"
+            loading="eager"
+            decoding="async">
+        </div>
+      </ion-toolbar>
+    
+    <ion-content class="background2">
+     
+      <ion-list  class="background2" >
+       
+          <!-- Lista de menu -->
+          <ion-item *ngIf="login === true "  class="menu-item" (click)="irInicio()"    >
+            <ion-label  > 
+              Inicio
+            </ion-label>
+            <ion-icon slot="start" name="home-outline"></ion-icon>
+          </ion-item>
+          
+            <ion-item  *ngIf="login === true " class="menu-item" (click)="irPerfil()"   >
+              <ion-label >
+                Perfil
+              </ion-label>
+              <ion-icon slot="start" name="person-outline"></ion-icon>
+            </ion-item>
+
+          
+
+              <ion-item *ngIf="rol === 'Usuario' && login === true " class="menu-item" [routerLink]="['/fletes/precios']"  >
+                <ion-label  > 
+                  Mis pedidos
+                </ion-label>
+                <ion-icon  slot="start" name="albums-outline"></ion-icon>
+              </ion-item>
+
+              <ion-item *ngIf="rol === 'Usuario' && login === true " class="menu-item"  [routerLink]="['/fletes']"   >
+                <ion-label > 
+                  Quiero pedir un flete
+                </ion-label>
+                <ion-icon slot="start" name="car-outline"></ion-icon>
+              </ion-item>
+
+              <ion-item *ngIf="rol === 'Fletero' && login === true " class="menu-item"  [routerLink]="['/fletes/fletesDis']"   >
+                <ion-label > 
+                  Ver Viajes Disponibles
+                </ion-label>
+                <ion-icon slot="start" name="car-outline"></ion-icon>
+              </ion-item>
+              
+              <ion-item *ngIf=" login === true && rolPanel " class="menu-item" [routerLink]="['/admin']"  >
+                <ion-label >
+                Admin
+                </ion-label>
+                <ion-icon slot="start" name="person-outline"></ion-icon>
+
+                
+              </ion-item>
+
+        
+    
+ </ion-list >
+
+
+ <ion-list class="background2" id="labels-list">
+    
+    <ion-item class="menu-item" *ngIf="login === false" [routerLink]="['/login']" >
+      <ion-label >
+      Iniciar Sesion
+      </ion-label>
+      <ion-icon slot="start" name="person-outline"></ion-icon>
+    </ion-item>
+
+    <ion-item class="menu-item" *ngIf="login" (click)="logout()"  >
+      <ion-label>
+      Cerrar Sesion 
+      </ion-label>
+      <ion-icon slot="start" name="log-out-outline"></ion-icon>
+    </ion-item>
+    <!--   -->
+    <ion-item class="menu-item" *ngIf="login === false" [routerLink]="['/registrarse']">
+      <ion-label >
+      Registrarse
+      </ion-label>
+      <ion-icon slot="start" name="add"></ion-icon>
+    </ion-item>
+</ion-list>
+
+
+
+      
+    </ion-content>
+
+    <footer class="u-align-center u-clearfix u-footer u-grey-80 u-footer" id="sec-516d"><div class="u-clearfix u-sheet u-sheet-1"></div></footer>
+    <section class="u-backlink u-clearfix u-grey-80">
+      <div class="content-container">
+        <h2>
+          <span>TuFleteYa</span>
+        </h2>
+        <p class="u-text">
+          <span>Todos los derechos reservados.</span>
+        </p>
+        <a class="u-link" href="https://wa.link/ga065p" target="_blank">
+          <span>Contáctanos via Whatsapp</span>
+        </a>
+      </div>
+    </section>
+    
+    
+
+  </ion-menu>
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+
+  <section class="push-debug-panel" *ngIf="showPushDebug && pushDebugEvent">
+    <div class="push-debug-panel__head">
+      <strong>Push Debug</strong>
+      <button type="button" class="push-debug-panel__close" (click)="closePushDebug()">Cerrar</button>
+    </div>
+    <p><strong>Stage:</strong> {{ pushDebugEvent.stage }}</p>
+    <p><strong>Mensaje:</strong> {{ pushDebugEvent.message }}</p>
+    <p *ngIf="pushDebugEvent.url"><strong>URL:</strong> {{ pushDebugEvent.url }}</p>
+    <p><strong>Hora:</strong> {{ pushDebugEvent.timestamp | date:'HH:mm:ss' }}</p>
+  </section>
+
+  <button
+    type="button"
+    class="push-debug-open"
+    *ngIf="!showPushDebug"
+    (click)="openPushDebug()"
+  >
+    Push Debug
+  </button>
+</ion-app>

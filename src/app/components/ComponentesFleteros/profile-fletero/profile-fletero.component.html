@@ -1,0 +1,157 @@
+<div class="mt-10 w-full flex justify-center items-center">
+    <section
+        *ngIf="DatosF"
+        class="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl w-[90%] max-w-md p-8 flex flex-col items-center text-center space-y-6
+              transform transition-all duration-500 ease-out hover:scale-[1.02] hover:shadow-green-900/30">
+
+        <div class="relative group flex justify-center">
+            <img
+                [src]="DatosF?.photoURL || DatosF?.image || 'https://i.pravatar.cc/150?u=' + DatosF?.email"
+                alt="Foto de perfil"
+                class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover
+                      transition-transform duration-500 ease-in-out group-hover:scale-110 group-hover:shadow-[#2add0f]/40"
+            />
+            <button
+                (click)="openFileInput()"
+                class="absolute bottom-0 right-[calc(50%-4rem)] bg-[#2add0f] hover:bg-green-600 text-white p-2 rounded-full shadow-md
+                      transition-all duration-300 ease-in-out hover:rotate-12 hover:scale-110"
+                aria-label="Cambiar foto"
+                type="button">
+                <ion-icon name="create-outline" size="small" class="animate-pulse"></ion-icon>
+            </button>
+            <input #fileInput type="file" accept="image/jpeg, image/png, image:gif" (change)="handleFileInput($event)" hidden />
+        </div>
+
+        <div class="transition-opacity duration-500 ease-in-out hover:opacity-90">
+            <h2 class="text-white text-3xl font-bold tracking-wide drop-shadow-lg">
+                {{ DatosF?.nombre }} {{ DatosF?.apellido }}
+            </h2>
+            <p class="text-[#2add0f] italic text-lg opacity-80">{{ DatosF?.edad }} años</p>
+        </div>
+
+        <div class="w-full bg-white/10 rounded-2xl p-5 shadow-inner text-[#2add0f]
+                     transition-all duration-500 hover:bg-white/20 hover:shadow-lg hover:scale-[1.01]">
+            <h3 class="text-2xl font-semibold flex items-center justify-center gap-3 mb-4 text-[#2add0f]">
+                <ion-icon name="shield-checkmark-outline"
+                          class="text-[#2add0f] text-3xl transition-transform duration-300 hover:scale-125 animate-pulse"></ion-icon>
+                Estado de alta
+            </h3>
+            <div class="space-y-2 text-sm text-white/90">
+                <p class="flex items-center justify-between gap-3">
+                    <span>Provincia</span>
+                    <strong>{{ DatosF?.provincia || 'Sin provincia' }}</strong>
+                </p>
+                <p class="flex items-center justify-between gap-3">
+                    <span>Registro</span>
+                    <strong>{{ DatosF?.metodoRegistro || 'email' }}</strong>
+                </p>
+                <p class="flex items-center justify-between gap-3">
+                    <span>Estado</span>
+                    <strong>{{ estadoAlta }}</strong>
+                </p>
+                <p class="flex items-center justify-between gap-3">
+                    <span>Documentación</span>
+                    <strong>{{ estadoDocumentacion }}</strong>
+                </p>
+                <p class="flex items-center justify-between gap-3">
+                    <span>Antecedentes</span>
+                    <strong>{{ estadoAntecedentes }}</strong>
+                </p>
+                <p class="flex items-center justify-between gap-3">
+                    <span>Vence</span>
+                    <strong>{{ formatearFecha(DatosF?.fechaVencimientoVerificacion) }}</strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full bg-white/10 rounded-2xl p-5 shadow-inner text-[#2add0f] 
+                     transition-all duration-500 hover:bg-white/20 hover:shadow-lg hover:scale-[1.01]">
+            <h3 class="text-2xl font-semibold flex items-center justify-center gap-2 mb-4 text-[#2add0f]">
+                <ion-icon name="person-circle-outline"
+                          class="text-[#2add0f] text-3xl transition-transform duration-300 hover:scale-125 animate-pulse"></ion-icon>
+                Datos Personales
+            </h3>
+            <div class="space-y-2 text-lg text-gray-700">
+                <p class="flex items-center justify-center gap-2 text-white/90">
+                    <ion-icon name="mail-outline"
+                              class="text-[#2add0f] text-2xl transition-transform duration-300 hover:scale-125"></ion-icon>
+                    <a href="mailto:{{ DatosF?.email }}" class="hover:underline">{{ DatosF?.email }}</a>
+                </p>
+                <p class="flex items-center justify-center gap-2 text-white/90">
+                    <ion-icon name="call-outline"
+                              class="text-[#2add0f] text-2xl transition-transform duration-300 hover:scale-125"></ion-icon>
+                    <a href="tel:{{ DatosF?.telefono }}" class="hover:underline">{{ DatosF?.telefono }}</a>
+                </p>
+                <p class="flex items-center justify-center gap-2 text-white/90">
+                    <ion-icon name="location-outline"
+                              class="text-[#2add0f] text-2xl transition-transform duration-300 hover:scale-125"></ion-icon>
+                    <span>{{ DatosF?.domicilio }}</span>
+                </p>
+            </div>
+        </div>
+
+        <div *ngIf="vehiculos.length > 0"
+             class="w-full bg-white/10 rounded-2xl p-5 shadow-inner text-[#2add0f]
+                      transition-all duration-500 hover:bg-white/20 hover:shadow-lg hover:scale-[1.01]">
+            <h3 class="text-2xl font-semibold flex items-center justify-center gap-3 mb-4 text-[#2add0f]">
+                <ion-icon name="car-outline"
+                          class="text-[#2add0f] text-3xl transition-transform duration-300 hover:scale-125 animate-pulse"></ion-icon>
+                Vehículos
+            </h3>
+            <div class="space-y-3">
+                <div *ngFor="let vehiculo of vehiculos; trackBy: trackByVehiculo" class="rounded-2xl bg-white/10 p-4 text-white/90 border border-white/10">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-lg font-bold">{{ vehiculo.tipoVehiculo }}</p>
+                        <span *ngIf="vehiculo.principal" class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-200">
+                            Principal
+                        </span>
+                    </div>
+                    <p class="mt-1 text-sm">{{ vehiculo.marca }} {{ vehiculo.modelo }} · {{ vehiculo.ano }}</p>
+                    <p class="text-sm">Patente: {{ vehiculo.patente }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full bg-white/10 rounded-2xl p-5 shadow-inner text-[#2add0f]
+                     transition-all duration-500 hover:bg-white/20 hover:shadow-lg hover:scale-[1.01]">
+            <h3 class="text-2xl font-semibold flex items-center justify-center gap-3 mb-4 text-[#2add0f]">
+                <ion-icon name="stats-chart-outline"
+                          class="text-[#2add0f] text-3xl transition-transform duration-300 hover:scale-125 animate-pulse"></ion-icon>
+                Estadísticas
+            </h3>
+            <div class="space-y-2 text-lg text-white/90">
+                <p class="flex items-center justify-center gap-2">
+                    <ion-icon name="checkmark-done-circle-outline"
+                              class="text-[#2add0f] text-2xl"></ion-icon>
+                    Viajes realizados: {{ cantidadViajes }}
+                </p>
+                <p class="flex items-center justify-center gap-2">
+                    <ion-icon name="star-outline" class="text-[#2add0f] text-2xl"></ion-icon>
+                    Score: {{ scoreConfiabilidad }}
+                </p>
+                <p class="flex items-center justify-center gap-2">
+                    <ion-icon name="speedometer-outline" class="text-[#2add0f] text-2xl"></ion-icon>
+                    Tasa de finalización: {{ tasaFinalizacion }}%
+                </p>
+            </div>
+        </div>
+
+        <div *ngIf="resenas.length > 0"
+             class="w-full bg-white/10 rounded-2xl p-5 shadow-inner text-[#2add0f]
+                      transition-all duration-500 hover:bg-white/20 hover:shadow-lg hover:scale-[1.01]">
+            <h3 class="text-2xl font-semibold flex items-center justify-center gap-3 mb-4 text-[#2add0f]">
+                <ion-icon name="star-outline"
+                          class="text-[#2add0f] text-3xl transition-transform duration-300 hover:scale-125 animate-pulse"></ion-icon>
+                Reseñas
+            </h3>
+            <div class="space-y-2 text-white/90">
+                <div *ngFor="let resena of resenas.slice(0, 5)" class="bg-white/10 rounded-lg p-3">
+                    <p class="text-sm italic">"{{ resena.mensaje || resena.comment }}"</p>
+                    <p class="text-xs text-right">- {{ resena.nombre }}</p>
+                </div>
+                <p *ngIf="resenas.length > 5" class="text-sm text-center">... y {{ resenas.length - 5 }} más</p>
+            </div>
+        </div>
+
+    </section>
+</div>

@@ -1,0 +1,25 @@
+<app-header></app-header>
+
+<ion-content class="profile-shell">
+  <div class="profile-shell__inner">
+    <section *ngIf="viewingOtherProfile && otherProfileData" class="profile-shell__external-card">
+      <span class="profile-shell__chip">Perfil público</span>
+      <h2>Perfil de {{ otherProfileData.nombre }} {{ otherProfileData.apellido }}</h2>
+      <p><strong>Email:</strong> {{ otherProfileData.email }}</p>
+      <p><strong>Perfil:</strong> {{ rol }}</p>
+      <p *ngIf="otherProfileData.vehiculo"><strong>Vehículo:</strong> {{ otherProfileData.vehiculo }}</p>
+      <p *ngIf="otherProfileData.patente"><strong>Patente:</strong> {{ otherProfileData.patente }}</p>
+    </section>
+
+    <section *ngIf="!viewingOtherProfile" class="profile-shell__panel">
+      <div *ngIf="login && !rol" class="profile-shell__loading">
+        Cargando tu perfil...
+      </div>
+
+      <app-profile-fletero *ngIf="login && rol === 'Fletero'"></app-profile-fletero>
+      <app-profile-usuario *ngIf="login && rol === 'Usuario'"></app-profile-usuario>
+    </section>
+  </div>
+</ion-content>
+
+<app-tabs-u *ngIf="!viewingOtherProfile"></app-tabs-u>

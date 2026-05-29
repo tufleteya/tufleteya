@@ -1,0 +1,69 @@
+<!-- <app-header></app-header>
+<ion-content class="background2 register-ux">
+  <div class="button-container">
+    <h1><strong>Datos personales</strong></h1>
+  <section class="u-clearfix u-section-1" id="sec-b6f0">
+    <div class="u-clearfix u-sheet u-sheet-1">
+      <div class="u-border-2 u-border-grey-75 u-container-style u-custom-color-7 u-expanded-width-xs u-group u-radius-24 u-shape-round u-group-1">
+        <div class="u-container-layout u-container-layout-1">
+          <div class="u-form u-palette-1-light-3 u-radius-14 u-form-1">
+            <form  class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;" source="email" name="form">
+              <div class="u-form-group u-form-name u-form-partition-factor-2 u-label-top">
+                <label for="name-7c2c" class="u-label">Nombre</label>
+                <input [(ngModel)]="registerF.nombre" type="text" placeholder="Introduzca su nombre" name="nombre" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                <div *ngIf="validateNombre()" class="error-message">El nombre debe tener al menos 3 caracteres</div>
+              </div>
+              
+              <div class="u-form-group u-form-name u-form-partition-factor-2 u-label-top u-form-group-2">
+                <label for="name-04dd" class="u-label">Apellido</label>
+                <input [(ngModel)]="registerF.apellido" type="text" placeholder="Introduzca su apellido" id="name-04dd" name="name-2" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                <div *ngIf="validateApellido()" class="error-message">El apellido debe tener al menos 3 caracteres</div>
+              </div>
+              
+              <div class="u-form-group u-form-name u-form-partition-factor-2 u-label-top">
+                <label for="name-85e7" class="u-label">DNI</label>
+                <input [(ngModel)]="registerF.dni" type="text" placeholder="Introduzca su DNI sin ' . ' o ' , '" name="dni" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" pattern="[0-9]{8}" required>
+                <div *ngIf="validateDNI()" class="error-message">Debe contener exactamente 8 dígitos numéricos</div>
+              </div>
+              
+              <div class="u-form-group u-form-name u-form-partition-factor-2 u-label-top u-form-group-4">
+                <label for="name-ae7a" class="u-label">Edad</label>
+                <input [(ngModel)]="registerF.edad" type="number" placeholder="Introduzca su edad" name="edad" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" min="18" max="65" required>
+                <div *ngIf="validateEdad()" class="error-message">La edad debe estar entre 18 y 65 años</div>
+              </div>
+              
+              <div class="u-form-address u-form-group u-label-top">
+                <label for="address-ef4e" class="u-label">Dirección</label>
+                <input [(ngModel)]="registerF.domicilio" type="text" placeholder="Ingrese su dirección" id="address-ef4e" name="address" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required>
+                <div *ngIf="validateDomicilio()" class="error-message">Ingrese su dirección</div>
+              </div>
+              
+            <div class="u-form-group u-form-phone u-label-top">
+              <label for="phone-e765" class="u-label">Teléfono</label>
+              <input [(ngModel)]="registerF.telefono" type="tel" placeholder="Ingrese su número sin '0' " name="telefono" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" inputmode="numeric" required>
+              <div *ngIf="validateTelefono()" class="error-message">El número de teléfono no es válido</div>
+            </div>
+            <div class="u-form-group u-form-phone u-label-top">
+              <label for="phone-e765" class="u-label">Foto de perfil</label>
+              <input (change)="onImagePerfil($event)" type="file" placeholder="Ingrese su foto de perfil" name="Fotoperfil" class="u-border-1 u-border-grey-60 u-input u-input-rectangle" required #fileInput>
+              <div *ngIf="fileInput.invalid && (fileInput.dirty || fileInput.touched)" class="error-message">
+                Por favor, seleccione una foto de perfil.
+              </div>
+            </div>
+              <div (click)="siguiente()" class="u-align-center u-form-group u-form-submit u-label-top">
+                <a  class="u-border-none u-btn u-btn-round u-btn-submit u-button-style u-custom-color-1 u-radius-13 u-btn-1">Enviar<br>
+                </a>
+                <input type="submit" value="submit" class="u-form-control-hidden">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+ 
+    </div>
+  </section>
+</div>
+  
+  
+</ion-content>
+   -->

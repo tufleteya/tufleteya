@@ -1,0 +1,14 @@
+FALTANTES PARA TUFLETEYA
+
+RESUELTO EN ESTA REVISION
+1) Notificaciones push: cliente, service worker y Cloud Functions compilan. Faltan credenciales/permisos para desplegar.
+2) Password: los helpers de Firestore limpian campos sensibles y las reglas bloquean password/pass/contrasena.
+3) Administrador: se agrego manejo de errores, limpieza de suscripciones y reglas/indices para collectionGroup usadas por admin.
+4) Carga y descarga: el pedido valida y guarda cargamento, accesoCarga y tipoServicio; las vistas de usuario/fletero lo muestran.
+5) Verificacion fletero: los updates generales ahora son merge; los cambios de documentacion siguen dejando pendiente revision, que es el comportamiento seguro.
+
+PENDIENTE OPERATIVO
+1) Desplegar Firestore rules, indices y functions con una cuenta con permisos IAM del proyecto.
+2) Desplegar hosting/Vercel.
+3) Mejorar performance Lighthouse: el build publica, pero el bundle inicial sigue pesado.
+4) Ejecutar prueba real end-to-end con cuentas de usuario/fletero/admin y datos reales de Firebase.

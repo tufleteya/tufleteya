@@ -1,0 +1,232 @@
+<ion-content fullscreen class="legal-page">
+  <main class="legal-shell">
+    <nav class="legal-nav" aria-label="Documentos legales">
+      <a routerLink="/login" class="legal-back">Volver al acceso</a>
+      <div class="legal-tabs">
+        <a routerLink="/legal/privacidad" routerLinkActive="active">Privacidad</a>
+        <a routerLink="/legal/terminos" routerLinkActive="active">Terminos</a>
+      </div>
+    </nav>
+
+    <article *ngIf="isPrivacy; else termsDocument" class="legal-card">
+      <header>
+        <p class="legal-kicker">TuFleteYa / FletesCuyo</p>
+        <h1>Politica de Privacidad</h1>
+        <p class="legal-updated">Ultima actualizacion: 3 de mayo de 2026</p>
+      </header>
+
+      <section>
+        <h2>1. Alcance</h2>
+        <p>
+          Esta Politica de Privacidad explica como TuFleteYa/FletesCuyo recopila, usa, conserva y protege datos personales cuando una persona crea una cuenta, publica pedidos de flete, envia propuestas, usa mapas, chats, notificaciones o funciones de administracion dentro de la plataforma.
+        </p>
+        <p>
+          El texto esta pensado para el funcionamiento actual de la app y debe completarse con los datos comerciales reales del responsable del proyecto antes de publicarse en produccion.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Responsable y contacto</h2>
+        <p>
+          Responsable de la base de datos: TuFleteYa/FletesCuyo. Contacto para consultas, cambios o eliminacion de datos: <a href="mailto:soporte&#64;tufleteya.com">soporte&#64;tufleteya.com</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2>3. Datos que recopilamos</h2>
+        <ul>
+          <li>Datos de cuenta: email, metodo de registro, identificador de usuario, estado de verificacion y fecha de registro.</li>
+          <li>Datos de perfil: nombre, apellido, DNI, edad, domicilio, provincia, telefono de respaldo, foto de perfil y datos visibles en perfiles.</li>
+          <li>Datos de fleteros: tipo de vehiculo, marca, modelo, anio, patente, documentacion cargada, estado de revision, habilitacion, sanciones, bloqueos y metricas operativas.</li>
+          <li>Datos de pedidos: origen, destino, paradas, coordenadas, distancia, duracion estimada, fecha, hora, cargamento, tipo de servicio, ayudantes y vehiculo solicitado.</li>
+          <li>Datos de propuestas y viajes: precio ofrecido, mensajes, aceptaciones, cancelaciones, motivos, estado del viaje, historial y rese&ntilde;as.</li>
+          <li>Datos de ubicacion: ubicacion de alta si el usuario la autoriza, ubicacion para filtrar pedidos por cercania y ubicacion en seguimiento de ruta cuando corresponda.</li>
+          <li>Datos tecnicos: datos de autenticacion de Firebase/Google, tokens de notificaciones push si se habilitan, informacion necesaria para seguridad, sesiones y funcionamiento de la app.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Para que usamos los datos</h2>
+        <ul>
+          <li>Crear y administrar cuentas de Usuario, Fletero y Admin.</li>
+          <li>Verificar identidad, revisar documentacion y habilitar o restringir cuentas de fleteros.</li>
+          <li>Publicar pedidos de flete, mostrar rutas, calcular distancias, recibir propuestas y coordinar viajes.</li>
+          <li>Permitir chats, rese&ntilde;as, notificaciones y seguimiento del estado del servicio.</li>
+          <li>Prevenir fraude, abuso, incumplimientos, cancelaciones indebidas o uso no autorizado.</li>
+          <li>Resolver reclamos, dar soporte, mejorar la seguridad y mantener registros operativos.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. Servicios de terceros</h2>
+        <p>
+          Para operar la plataforma podemos usar servicios de terceros, incluyendo Firebase/Google para autenticacion, base de datos, almacenamiento y notificaciones; Google para inicio de sesion; Mapbox para mapas, geocodificacion y rutas; y proveedores de hosting, infraestructura o soporte tecnico.
+        </p>
+        <p>
+          Estos proveedores pueden tratar datos tecnicos o personales en la medida necesaria para prestar sus servicios. No vendemos datos personales.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. Cookies, almacenamiento local y tecnologias similares</h2>
+        <p>
+          La app puede usar almacenamiento local del navegador para recordar el email si la persona activa "Recordarme", conservar sesiones, preferencias y datos necesarios para el login. Firebase, Google u otros proveedores pueden usar cookies o tecnologias similares para autenticacion, seguridad y medicion tecnica.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. Conservacion y seguridad</h2>
+        <p>
+          Conservamos los datos mientras la cuenta este activa o mientras sean necesarios para prestar el servicio, cumplir obligaciones legales, resolver reclamos, auditar operaciones o prevenir abusos. Aplicamos controles razonables de seguridad, reglas de acceso y servicios con autenticacion; aun asi, ningun sistema conectado a internet es completamente infalible.
+        </p>
+      </section>
+
+      <section>
+        <h2>8. Derechos de los titulares</h2>
+        <p>
+          Las personas pueden solicitar acceso, rectificacion, actualizacion o supresion de sus datos personales conforme la Ley 25.326 de Proteccion de Datos Personales. Para ejercer estos derechos, escribir a <a href="mailto:soporte&#64;tufleteya.com">soporte&#64;tufleteya.com</a> indicando la cuenta y el pedido concreto.
+        </p>
+        <p>
+          La supresion puede estar limitada cuando debamos conservar informacion por seguridad, auditoria, reclamos, obligaciones legales o registros de operaciones ya realizadas.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Cambios en esta politica</h2>
+        <p>
+          Podemos actualizar esta Politica de Privacidad para reflejar cambios legales, tecnicos o funcionales. La version vigente sera la publicada en esta pagina.
+        </p>
+      </section>
+    </article>
+
+    <ng-template #termsDocument>
+      <article class="legal-card">
+        <header>
+          <p class="legal-kicker">TuFleteYa / FletesCuyo</p>
+          <h1>Terminos y Condiciones</h1>
+          <p class="legal-updated">Ultima actualizacion: 3 de mayo de 2026</p>
+        </header>
+
+        <section>
+          <h2>1. Aceptacion</h2>
+          <p>
+            Al registrarte, iniciar sesion o usar TuFleteYa/FletesCuyo aceptas estos Terminos y Condiciones y la Politica de Privacidad. Si no estas de acuerdo, no debes usar la plataforma.
+          </p>
+        </section>
+
+        <section>
+          <h2>2. Descripcion del servicio</h2>
+          <p>
+            La plataforma permite que usuarios publiquen pedidos de flete y que fleteros registrados envien propuestas, consulten pedidos disponibles, gestionen viajes, usen mapas, chats y herramientas de seguimiento. TuFleteYa/FletesCuyo actua exclusivamente como intermediaria digital y tecnologica para facilitar el contacto entre usuarios y fleteros independientes.
+          </p>
+          <p>
+            La plataforma no es transportista, empresa de transporte, agencia de cargas, empleadora de fleteros, representante, mandataria ni garante de ninguna de las partes. Tampoco presta directamente los servicios de flete, no controla la ejecucion material del viaje y no reemplaza las obligaciones legales, comerciales, fiscales, laborales, de transito, seguridad o seguro que correspondan a cada usuario.
+          </p>
+        </section>
+
+        <section>
+          <h2>3. Cuentas y verificacion</h2>
+          <ul>
+            <li>Para operar se debe crear una cuenta con informacion real, actual y verificable.</li>
+            <li>Los fleteros pueden ver pedidos, pero para ver rutas, enviar precios o tomar servicios deben estar verificados y habilitados por administracion.</li>
+            <li>La plataforma puede solicitar documentacion, datos de vehiculo, DNI, patente, antecedentes u otros respaldos operativos.</li>
+            <li>El usuario es responsable de mantener la confidencialidad de sus credenciales y de toda actividad realizada desde su cuenta.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Uso permitido</h2>
+          <p>Esta prohibido:</p>
+          <ul>
+            <li>Cargar datos falsos, ajenos, incompletos o enga&ntilde;osos.</li>
+            <li>Usar la plataforma para fines ilegales, peligrosos, discriminatorios, abusivos o fraudulentos.</li>
+            <li>Manipular precios, rutas, rese&ntilde;as, cancelaciones o metricas de confianza.</li>
+            <li>Intentar acceder a cuentas, datos, rutas, chats o paneles que no correspondan.</li>
+            <li>Publicar cargas prohibidas, ilicitas o que requieran permisos especiales no informados.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>5. Pedidos, propuestas y viajes</h2>
+          <ul>
+            <li>El usuario debe describir correctamente origen, destino, carga, accesos, horarios y condiciones del servicio.</li>
+            <li>El fletero debe enviar precios reales y cumplir con las condiciones aceptadas.</li>
+            <li>Las rutas, distancias y tiempos son estimaciones tecnicas y pueden variar por transito, clima, cortes, carga o datos ingresados.</li>
+            <li>Las partes son responsables de coordinar detalles finales, seguridad de la carga, documentacion, seguros y cumplimiento normativo.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>6. Responsabilidad de usuarios y fleteros</h2>
+          <p>
+            Cada parte actua bajo su exclusiva responsabilidad. El usuario que solicita un flete es responsable de la veracidad de los datos cargados, la descripcion correcta de la carga, su titularidad o autorizacion para transportarla, la legalidad de los bienes, la preparacion del retiro y entrega, y la informacion sobre fragilidad, peso, volumen, accesos, permisos o cuidados especiales.
+          </p>
+          <p>
+            El fletero es responsable de contar con vehiculo apto, documentacion vigente, licencia habilitante, seguro obligatorio y cualquier cobertura, permiso, habilitacion o requisito que sea exigible para el servicio ofrecido. Tambien es responsable de la conduccion, custodia, carga, descarga cuando corresponda, cumplimiento de normas de transito y trato adecuado hacia usuarios, terceros y bienes transportados.
+          </p>
+        </section>
+
+        <section>
+          <h2>7. Cancelaciones, sanciones y bloqueos</h2>
+          <p>
+            La plataforma puede registrar cancelaciones, motivos, incumplimientos, rese&ntilde;as y metricas de confiabilidad. Ante uso indebido, datos falsos, incumplimientos reiterados, reclamos graves, riesgo para terceros o solicitud de autoridad competente, podemos advertir, limitar, suspender, bloquear o eliminar cuentas.
+          </p>
+        </section>
+
+        <section>
+          <h2>8. Pagos y acuerdos economicos</h2>
+          <p>
+            Salvo que la plataforma incorpore expresamente un sistema de pagos propio, los precios, pagos, comprobantes, impuestos y acuerdos economicos entre usuarios y fleteros son responsabilidad de las partes. La plataforma puede mostrar precios o propuestas como informacion operativa.
+          </p>
+        </section>
+
+        <section>
+          <h2>9. Contenido y propiedad intelectual</h2>
+          <p>
+            Las marcas, interfaces, codigo, dise&ntilde;o, textos y elementos de TuFleteYa/FletesCuyo pertenecen a sus titulares o licenciantes. Los usuarios conservan responsabilidad sobre el contenido que cargan y otorgan a la plataforma una autorizacion limitada para mostrarlo, procesarlo y almacenarlo con fines operativos.
+          </p>
+        </section>
+
+        <section>
+          <h2>10. Limitacion de responsabilidad</h2>
+          <p>
+            Hacemos esfuerzos razonables para mantener la plataforma disponible y segura, pero no garantizamos funcionamiento sin errores, interrupciones, disponibilidad permanente, datos de ruta perfectos ni que un servicio sea efectivamente aceptado, realizado o finalizado por las partes.
+          </p>
+          <p>
+            En la maxima medida permitida por la ley aplicable, TuFleteYa/FletesCuyo no sera responsable por incumplimientos entre usuarios y fleteros, informacion falsa o incompleta cargada por terceros, danos sobre la carga, perdida, robo, rotura, accidentes, lesiones, infracciones, multas, demoras, cancelaciones, pagos fuera de la plataforma, cargas ilicitas o cualquier consecuencia derivada de la ejecucion del servicio de transporte acordado entre las partes.
+          </p>
+          <p>
+            La responsabilidad de la plataforma, si legalmente correspondiera, se limita al maximo permitido por la ley aplicable y nunca incluira danos indirectos, especiales, incidentales, punitivos, perdida de chance, lucro cesante, perdida de ingresos, perdida de clientes, perjuicios comerciales ni danos derivados de demoras o interrupciones del servicio.
+          </p>
+        </section>
+
+        <section>
+          <h2>11. Reclamos y soporte</h2>
+          <p>
+            Cualquier reclamo vinculado con una cuenta, pedido, propuesta, viaje, pago, conducta de otra parte o uso de la plataforma debe enviarse a <a href="mailto:soporte&#64;tufleteya.com">soporte&#64;tufleteya.com</a> con identificacion de la cuenta, fecha del hecho, numero o datos del pedido si existieran, descripcion clara del problema y documentacion de respaldo.
+          </p>
+          <p>
+            La plataforma podra analizar el reclamo, solicitar informacion adicional, registrar antecedentes, mediar operativamente entre las partes o tomar medidas sobre cuentas cuando corresponda. La recepcion o gestion de un reclamo no implica reconocimiento de responsabilidad de la plataforma ni garantia de recupero, indemnizacion o resultado favorable.
+          </p>
+        </section>
+
+        <section>
+          <h2>12. Baja de cuenta y datos</h2>
+          <p>
+            Podes solicitar la baja de tu cuenta o la modificacion de tus datos escribiendo a <a href="mailto:soporte&#64;tufleteya.com">soporte&#64;tufleteya.com</a>. Podemos conservar registros necesarios para seguridad, reclamos, auditoria, obligaciones legales o historial de operaciones.
+          </p>
+        </section>
+
+        <section>
+          <h2>13. Cambios, ley aplicable y jurisdiccion</h2>
+          <p>
+            Podemos actualizar estos terminos cuando cambie el servicio, la normativa o las condiciones operativas. La version vigente sera la publicada en esta pagina.
+          </p>
+          <p>
+            Estos terminos se rigen por las leyes de la Republica Argentina, sin perjuicio de las normas de orden publico que correspondan. Para cualquier controversia relacionada con la plataforma, las partes se someten a la jurisdiccion de los tribunales ordinarios competentes de la Provincia de Mendoza, salvo que una norma imperativa disponga otra jurisdiccion.
+          </p>
+        </section>
+      </article>
+    </ng-template>
+  </main>
+</ion-content>

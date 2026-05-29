@@ -1,0 +1,291 @@
+<section class="space-y-6">
+  <div class="rounded-[28px] bg-white/90 p-6 shadow-[0_20px_45px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Control de fleteros</p>
+    <h2 class="mt-2 text-3xl font-extrabold text-slate-900">Fleteros y documentacion</h2>
+    <p class="mt-2 text-sm text-slate-500">Revision administrativa, validacion manual y acciones sobre el estado operativo de cada fletero.</p>
+  </div>
+
+  <div class="rounded-[28px] bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Configuracion operativa</p>
+        <h3 class="mt-1 text-xl font-semibold text-slate-900">Seña futura y monitoreo antifraude</h3>
+        <p class="mt-1 text-sm text-slate-500">La seña queda apagada por defecto; el monitoreo registra cancelaciones en viaje cerca del destino.</p>
+      </div>
+
+      <button type="button" class="rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60" [disabled]="guardandoOperacion" (click)="guardarConfiguracionOperacion()">
+        {{ guardandoOperacion ? 'Guardando...' : 'Guardar configuracion' }}
+      </button>
+    </div>
+
+    <div class="mt-5 grid gap-4 md:grid-cols-3">
+      <label class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-slate-100">
+        <span>
+          <span class="block text-sm font-semibold text-slate-900">Seña / comision</span>
+          <span class="block text-xs text-slate-500">Preparado para pagos futuros</span>
+        </span>
+        <ion-toggle color="success" [(ngModel)]="operacionConfig.pagoSeniaHabilitado"></ion-toggle>
+      </label>
+
+      <label class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-slate-100">
+        <span>
+          <span class="block text-sm font-semibold text-slate-900">Antifraude por cercania</span>
+          <span class="block text-xs text-slate-500">Marca cancelaciones cerca del destino</span>
+        </span>
+        <ion-toggle color="warning" [(ngModel)]="operacionConfig.antifraudeCancelacionCercaDestinoHabilitado"></ion-toggle>
+      </label>
+
+      <label class="rounded-2xl bg-slate-50 px-4 py-3 ring-1 ring-slate-100">
+        <span class="block text-sm font-semibold text-slate-900">Umbral destino (metros)</span>
+        <input [(ngModel)]="operacionConfig.distanciaDestinoSospechosaMetros" type="number" min="50" max="5000" step="10" class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400" />
+      </label>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="mt-10 flex justify-center">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <div *ngIf="!cargando" class="rounded-[28px] bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-emerald-700">Normal</p>
+        <p class="mt-1 text-sm text-emerald-900">Puede operar si tambien esta habilitado, verificado y con documentacion vigente.</p>
+      </div>
+      <div class="rounded-2xl bg-yellow-50 p-4 ring-1 ring-yellow-100">
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-yellow-700">Advertencia</p>
+        <p class="mt-1 text-sm text-yellow-900">El score bajo por cancelaciones, pero la cuenta no queda bloqueada automaticamente.</p>
+      </div>
+      <div class="rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-100">
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-amber-700">Suspension automatica</p>
+        <p class="mt-1 text-sm text-amber-900">El sistema bloquea la operacion por reincidencia grave o score bajo.</p>
+      </div>
+      <div class="rounded-2xl bg-rose-50 p-4 ring-1 ring-rose-100">
+        <p class="text-xs font-bold uppercase tracking-[0.16em] text-rose-700">Bloqueo manual/revision</p>
+        <p class="mt-1 text-sm text-rose-900">Accion administrativa: detiene la operacion hasta revision o levantamiento.</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!cargando" class="overflow-hidden rounded-[28px] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <div class="border-b border-slate-100 p-5">
+      <h2 class="text-xl font-semibold text-slate-900">Mesa de revision</h2>
+      <p class="mt-1 text-sm text-slate-500">Panel de revision manual de documentacion, validacion de DNI y habilitacion operativa.</p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-100 text-left">
+          <tr>
+            <th class="px-4 py-2">Fletero</th>
+            <th class="px-4 py-2">DNI / Provincia</th>
+            <th class="px-4 py-2 text-center">Registro</th>
+            <th class="px-4 py-2 text-center">Alta</th>
+            <th class="px-4 py-2 text-center">Documentacion</th>
+            <th class="px-4 py-2 text-center">DNI</th>
+            <th class="px-4 py-2 text-center">Archivos</th>
+            <th class="px-4 py-2 text-center">Habilitado</th>
+            <th class="px-4 py-2 text-center">Verificado</th>
+            <th class="px-4 py-2 text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let f of fleteros" class="border-b hover:bg-gray-50 align-top">
+            <td class="px-4 py-3">
+              <button type="button" class="text-left font-semibold text-slate-900 underline-offset-4 transition hover:text-teal-700 hover:underline" (click)="abrirDetalleFletero(f)">
+                {{ f.nombre || '-' }} {{ f.apellido || '' }}
+              </button>
+              <div class="text-slate-500">{{ f.email || 'Sin correo' }}</div>
+            </td>
+
+            <td class="px-4 py-3">
+              <div class="font-semibold text-slate-800">{{ f.dni || '-' }}</div>
+              <div class="text-slate-500">{{ f.provincia || 'Sin provincia' }}</div>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-600">
+                {{ f.metodoRegistro || 'email' }}
+              </span>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getEstadoRegistroClass(f)">
+                {{ getEstadoRegistro(f) }}
+              </span>
+              <div class="mt-1 text-[11px] text-slate-500">{{ formatearFecha(f.fechaVencimientoVerificacion) }}</div>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getDocumentoClass(f)">
+                {{ getDocumentacionEstado(f) }}
+              </span>
+              <div class="mt-1 text-[11px] text-slate-500">{{ f.verificacionDni?.observacion || 'Sin observaciones' }}</div>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+              <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getDniEstadoClass(f)">
+                {{ getDniEstado(f) }}
+              </span>
+            </td>
+
+            <td class="px-4 py-3">
+              <div class="flex flex-col gap-2 text-xs">
+                <a *ngIf="f.verificacionDni?.frontalUrl" [href]="f.verificacionDni?.frontalUrl" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-slate-100 px-3 py-2 font-semibold text-slate-700 hover:bg-slate-200">Ver DNI frontal</a>
+                <a *ngIf="f.verificacionDni?.dorsalUrl" [href]="f.verificacionDni?.dorsalUrl" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-slate-100 px-3 py-2 font-semibold text-slate-700 hover:bg-slate-200">Ver DNI dorsal</a>
+                <a *ngIf="f.datosVehiculos?.imageCarnet" [href]="f.datosVehiculos?.imageCarnet" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-slate-100 px-3 py-2 font-semibold text-slate-700 hover:bg-slate-200">Ver licencia frontal</a>
+                <a *ngIf="f.datosVehiculos?.imageCarnetDorzal" [href]="f.datosVehiculos?.imageCarnetDorzal" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-slate-100 px-3 py-2 font-semibold text-slate-700 hover:bg-slate-200">Ver licencia dorsal</a>
+                <a *ngIf="f.datosVehiculos?.imagePatente" [href]="f.datosVehiculos?.imagePatente" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-slate-100 px-3 py-2 font-semibold text-slate-700 hover:bg-slate-200">Ver patente</a>
+                <a *ngIf="f.antecedentesPenales?.url" [href]="f.antecedentesPenales?.url" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-slate-100 px-3 py-2 font-semibold text-slate-700 hover:bg-slate-200">Ver antecedentes</a>
+              </div>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+              <ion-toggle color="success" [checked]="f.habilitado" [disabled]="guardandoHabilitado[f.id]" (ionChange)="toggleHabilitado(f, $event)"></ion-toggle>
+            </td>
+
+            <td class="px-4 py-3 text-center">
+              <ion-toggle color="primary" [checked]="f.verificado" [disabled]="guardandoVerificado[f.id]" (ionChange)="toggleVerificado(f, $event)"></ion-toggle>
+            </td>
+
+            <td class="px-4 py-3">
+              <div class="flex min-w-[420px] flex-row flex-wrap items-center gap-2">
+                <button class="whitespace-nowrap rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white" (click)="actualizarRevisionDni(f, 'aprobado')">Aprobar DNI y verificar</button>
+                <button class="whitespace-nowrap rounded-lg bg-rose-600 px-3 py-2 text-xs font-semibold text-white" (click)="actualizarRevisionDni(f, 'rechazado')">Rechazar DNI</button>
+                <button class="whitespace-nowrap rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white" (click)="toggleBloqueoManual(f)">
+                  {{ f.bloqueoManualAdmin ? 'Desbloqueo manual' : 'Bloqueo manual' }}
+                </button>
+                <button class="whitespace-nowrap rounded-lg bg-sky-600 px-3 py-2 text-xs font-semibold text-white" (click)="marcarApelacion(f)">Marcar apelacion</button>
+                <button class="whitespace-nowrap rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white" (click)="resolverApelacion(f, true)">Levantar sancion</button>
+                <button *ngIf="f.apelacionPendiente" class="whitespace-nowrap rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white" (click)="resolverApelacion(f, false)">Rechazar apelacion</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <ion-modal cssClass="tfy-admin-reason-modal" [isOpen]="reasonModalOpen" [backdropDismiss]="false">
+    <ng-template>
+      <div class="admin-reason-shell">
+        <header class="admin-reason-header">
+          <div>
+            <p class="admin-reason-eyebrow">Accion administrativa</p>
+            <h2>{{ reasonModalTitle }}</h2>
+          </div>
+          <button type="button" class="admin-reason-close" (click)="cancelReasonModal()">Cerrar</button>
+        </header>
+
+        <div class="admin-reason-body">
+          <section class="admin-reason-intro">
+            <h3>{{ reasonModalSubtitle }}</h3>
+            <p>Elegi un motivo existente o escribi uno nuevo. El motivo queda guardado en el historial para auditoria.</p>
+          </section>
+
+          <section class="admin-reason-impact">
+            <p class="admin-reason-impact__label">{{ getReasonImpactTitle() }}</p>
+            <p>{{ getReasonImpactBody() }}</p>
+          </section>
+
+          <label class="admin-reason-field">
+            <span>Motivo existente</span>
+            <ion-select [(ngModel)]="reasonModalSelected" interface="popover" [interfaceOptions]="reasonSelectOptions" placeholder="Selecciona un motivo">
+              <ion-select-option *ngFor="let option of getReasonOptions(reasonModalKey)" [value]="option">
+                {{ option }}
+              </ion-select-option>
+            </ion-select>
+          </label>
+
+          <label class="admin-reason-field">
+            <span>Agregar nuevo motivo</span>
+            <ion-input [(ngModel)]="reasonModalCustomReason" placeholder="Escribi un nuevo motivo"></ion-input>
+          </label>
+
+          <div class="admin-reason-actions">
+            <button type="button" class="admin-reason-button admin-reason-button--secondary" (click)="cancelReasonModal()">Cancelar</button>
+            <button type="button" class="admin-reason-button admin-reason-button--primary" (click)="confirmReasonModal()" [disabled]="!reasonModalSelected && !reasonModalCustomReason.trim()">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
+  <ion-modal cssClass="tfy-admin-detail-modal" [isOpen]="detailModalOpen" (didDismiss)="cerrarDetalleFletero()">
+    <ng-template>
+      <div class="admin-detail-shell" *ngIf="selectedFletero as f">
+        <header class="admin-detail-header">
+          <div>
+            <p class="admin-reason-eyebrow">Ficha del fletero</p>
+            <h2>{{ f.nombre || '-' }} {{ f.apellido || '' }}</h2>
+            <p>{{ f.email || 'Sin correo' }}</p>
+          </div>
+          <button type="button" class="admin-reason-close" (click)="cerrarDetalleFletero()">Cerrar</button>
+        </header>
+
+        <div class="admin-detail-body">
+          <section class="admin-detail-grid">
+            <article class="admin-detail-card">
+              <h3>Datos personales</h3>
+              <dl>
+                <div><dt>DNI</dt><dd>{{ f.dni || '-' }}</dd></div>
+                <div><dt>Telefono</dt><dd>{{ f.telefono || '-' }}</dd></div>
+                <div><dt>Telefono respaldo</dt><dd>{{ f.telefonoRespaldo || '-' }}</dd></div>
+                <div><dt>Domicilio</dt><dd>{{ f.domicilio || '-' }}</dd></div>
+                <div><dt>Provincia</dt><dd>{{ f.provincia || '-' }}</dd></div>
+                <div><dt>Metodo registro</dt><dd>{{ f.metodoRegistro || 'email' }}</dd></div>
+                <div><dt>Alta</dt><dd>{{ getEstadoRegistro(f) }}</dd></div>
+              </dl>
+            </article>
+
+            <article class="admin-detail-card">
+              <h3>Estado operativo</h3>
+              <dl>
+                <div><dt>Habilitado</dt><dd>{{ f.habilitado ? 'Si' : 'No' }}</dd></div>
+                <div><dt>Verificado</dt><dd>{{ f.verificado ? 'Si' : 'No' }}</dd></div>
+                <div><dt>DNI</dt><dd>{{ getDniEstado(f) }}</dd></div>
+                <div><dt>Documentacion</dt><dd>{{ getDocumentacionEstado(f) }}</dd></div>
+                <div><dt>Sancion</dt><dd>{{ getEstadoOperativo(f) }}</dd></div>
+                <div><dt>Score</dt><dd>{{ f.scoreConfiabilidad ?? 100 }}</dd></div>
+                <div><dt>Cancelaciones</dt><dd>{{ f.cancelacionesTotal ?? 0 }}</dd></div>
+              </dl>
+            </article>
+          </section>
+
+          <section class="admin-detail-card admin-detail-card--wide">
+            <div class="admin-detail-section-head">
+              <h3>Vehiculos</h3>
+              <span>{{ selectedVehiculos.length }} registrado/s</span>
+            </div>
+
+            <div *ngIf="cargandoDetalle" class="admin-detail-empty">Cargando vehiculos...</div>
+            <div *ngIf="!cargandoDetalle && selectedVehiculos.length === 0" class="admin-detail-empty">No hay datos vehiculares cargados.</div>
+
+            <div class="admin-vehicle-list" *ngIf="!cargandoDetalle && selectedVehiculos.length > 0">
+              <article class="admin-vehicle-card" *ngFor="let v of selectedVehiculos">
+                <div class="admin-vehicle-title">
+                  <h4>{{ v.tipoVehiculo || 'Vehiculo' }}</h4>
+                  <span *ngIf="v.principal">Principal</span>
+                </div>
+                <dl>
+                  <div><dt>Marca</dt><dd>{{ v.marca || '-' }}</dd></div>
+                  <div><dt>Modelo</dt><dd>{{ v.modelo || '-' }}</dd></div>
+                  <div><dt>Ano</dt><dd>{{ v.ano || '-' }}</dd></div>
+                  <div><dt>Patente</dt><dd>{{ v.patente || '-' }}</dd></div>
+                </dl>
+                <div class="admin-vehicle-files">
+                  <a *ngIf="getArchivoVehiculo(v, 'imagePatente')" [href]="getArchivoVehiculo(v, 'imagePatente')" target="_blank" rel="noopener noreferrer">Patente</a>
+                  <a *ngIf="getArchivoVehiculo(v, 'imageCarnet')" [href]="getArchivoVehiculo(v, 'imageCarnet')" target="_blank" rel="noopener noreferrer">Licencia frontal</a>
+                  <a *ngIf="getArchivoVehiculo(v, 'imageCarnetDorzal')" [href]="getArchivoVehiculo(v, 'imageCarnetDorzal')" target="_blank" rel="noopener noreferrer">Licencia dorsal</a>
+                  <a *ngIf="getArchivoVehiculo(v, 'imageDni')" [href]="getArchivoVehiculo(v, 'imageDni')" target="_blank" rel="noopener noreferrer">DNI frontal</a>
+                  <a *ngIf="getArchivoVehiculo(v, 'imageDniDorzal')" [href]="getArchivoVehiculo(v, 'imageDniDorzal')" target="_blank" rel="noopener noreferrer">DNI dorsal</a>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+</section>

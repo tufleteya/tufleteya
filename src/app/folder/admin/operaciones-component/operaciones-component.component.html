@@ -1,0 +1,199 @@
+<section class="space-y-6">
+  <div class="rounded-[28px] bg-white/90 p-6 shadow-[0_20px_45px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/70">
+    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Centro operativo</p>
+    <h2 class="mt-2 text-3xl font-extrabold text-slate-900">Alertas, mensajes e incidencias</h2>
+    <p class="mt-2 text-sm text-slate-500">Bandeja de control para revisar riesgos, emitir comunicaciones y ordenar reportes operativos.</p>
+  </div>
+
+  <div *ngIf="cargando" class="mt-10 flex justify-center">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!cargando">
+    <div class="grid gap-4 md:grid-cols-4">
+      <button type="button" class="rounded-2xl bg-white p-4 text-left shadow ring-1 ring-slate-100" [class.ring-2]="tab === 'alertas'" (click)="setTab('alertas')">
+        <p class="text-sm text-slate-500">Alertas pendientes</p>
+        <p class="mt-1 text-3xl font-bold text-orange-600">{{ alertasPendientes }}</p>
+      </button>
+      <button type="button" class="rounded-2xl bg-white p-4 text-left shadow ring-1 ring-slate-100" [class.ring-2]="tab === 'incidencias'" (click)="setTab('incidencias')">
+        <p class="text-sm text-slate-500">Incidencias abiertas</p>
+        <p class="mt-1 text-3xl font-bold text-rose-600">{{ incidenciasAbiertas }}</p>
+      </button>
+      <button type="button" class="rounded-2xl bg-white p-4 text-left shadow ring-1 ring-slate-100" [class.ring-2]="tab === 'comunicaciones'" (click)="setTab('comunicaciones')">
+        <p class="text-sm text-slate-500">Comunicaciones activas</p>
+        <p class="mt-1 text-3xl font-bold text-sky-600">{{ comunicacionesActivas }}</p>
+      </button>
+      <button type="button" class="rounded-2xl bg-white p-4 text-left shadow ring-1 ring-slate-100" [class.ring-2]="tab === 'chats'" (click)="setTab('chats')">
+        <p class="text-sm text-slate-500">Chats monitoreados</p>
+        <p class="mt-1 text-3xl font-bold text-emerald-600">{{ chatsActivos }}</p>
+      </button>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button type="button" class="rounded-xl px-4 py-2 text-sm font-semibold" [ngClass]="tab === 'alertas' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700'" (click)="setTab('alertas')">Alertas</button>
+      <button type="button" class="rounded-xl px-4 py-2 text-sm font-semibold" [ngClass]="tab === 'comunicaciones' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700'" (click)="setTab('comunicaciones')">Emitir alertas</button>
+      <button type="button" class="rounded-xl px-4 py-2 text-sm font-semibold" [ngClass]="tab === 'incidencias' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700'" (click)="setTab('incidencias')">Incidencias</button>
+      <button type="button" class="rounded-xl px-4 py-2 text-sm font-semibold" [ngClass]="tab === 'chats' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700'" (click)="setTab('chats')">Chats</button>
+    </div>
+
+    <div *ngIf="tab === 'alertas'" class="overflow-hidden rounded-[28px] bg-white shadow ring-1 ring-slate-200/70">
+      <div class="border-b border-slate-100 p-5">
+        <h3 class="text-xl font-semibold text-slate-900">Bandeja de alertas</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-left text-slate-600">
+            <tr>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Origen</th>
+              <th class="px-4 py-3">Pedido</th>
+              <th class="px-4 py-3">Detalle</th>
+              <th class="px-4 py-3 text-center">Estado</th>
+              <th class="px-4 py-3 text-center">Accion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let alerta of alertas" class="border-b border-slate-100 align-top">
+              <td class="px-4 py-3 whitespace-nowrap">{{ fechaTexto(alerta.fecha) }}</td>
+              <td class="px-4 py-3">
+                <div class="font-semibold text-slate-900">{{ alerta.origen }}</div>
+                <div class="text-xs text-slate-500">{{ alerta.tipo }}</div>
+              </td>
+              <td class="px-4 py-3">
+                <div>{{ alerta.pedidoId || '-' }}</div>
+                <div class="text-xs text-slate-500">{{ alerta.usuarioId || alerta.fleteroId || '' }}</div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="font-medium text-slate-800">{{ alerta.motivo || '-' }}</div>
+                <div class="text-xs text-slate-500">{{ alerta.detalle || '-' }}</div>
+                <div *ngIf="alerta.distanciaDestinoMetros !== null && alerta.distanciaDestinoMetros !== undefined" class="mt-1 text-xs font-semibold text-orange-700">
+                  Distancia destino: {{ alerta.distanciaDestinoMetros }}m / umbral {{ alerta.umbralMetros }}m
+                </div>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ alerta.estado || 'pendiente' }}</span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <div *ngIf="alerta.origen === 'antifraude'" class="flex justify-center gap-2">
+                  <button class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white" (click)="actualizarAlertaAntifraude(alerta, 'revisada')">Revisada</button>
+                  <button class="rounded-lg bg-slate-600 px-3 py-2 text-xs font-semibold text-white" (click)="actualizarAlertaAntifraude(alerta, 'descartada')">Descartar</button>
+                </div>
+                <span *ngIf="alerta.origen !== 'antifraude'" class="text-xs text-slate-400">Gestionar en reportes</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div *ngIf="tab === 'comunicaciones'" class="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+      <form class="rounded-[28px] bg-white p-5 shadow ring-1 ring-slate-200/70" (ngSubmit)="emitirComunicacion()">
+        <h3 class="text-xl font-semibold text-slate-900">Emitir alerta o mensaje</h3>
+        <div class="mt-4 space-y-3">
+          <select [(ngModel)]="comunicacionForm.destinatario" name="destinatario" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm">
+            <option value="todos">Todos</option>
+            <option value="usuarios">Todos los usuarios</option>
+            <option value="fleteros">Todos los fleteros</option>
+            <option value="usuario">Usuario especifico</option>
+            <option value="fletero">Fletero especifico</option>
+          </select>
+          <select *ngIf="comunicacionForm.destinatario === 'usuario' || comunicacionForm.destinatario === 'fletero'" [(ngModel)]="comunicacionForm.destinatarioId" name="destinatarioId" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm">
+            <option value="">Seleccionar destinatario</option>
+            <option *ngFor="let actor of actoresFiltrados" [value]="actor.id">{{ nombreActor(actor) }} - {{ actor.perfil }}</option>
+          </select>
+          <select [(ngModel)]="comunicacionForm.prioridad" name="prioridad" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm">
+            <option value="info">Informativa</option>
+            <option value="importante">Importante</option>
+            <option value="urgente">Urgente</option>
+          </select>
+          <input [(ngModel)]="comunicacionForm.titulo" name="titulo" type="text" placeholder="Titulo" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+          <textarea [(ngModel)]="comunicacionForm.mensaje" name="mensaje" rows="5" placeholder="Mensaje" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"></textarea>
+          <button type="submit" [disabled]="guardandoComunicacion" class="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">
+            {{ guardandoComunicacion ? 'Enviando...' : 'Emitir comunicacion' }}
+          </button>
+        </div>
+      </form>
+
+      <div class="rounded-[28px] bg-white shadow ring-1 ring-slate-200/70">
+        <div class="border-b border-slate-100 p-5">
+          <h3 class="text-xl font-semibold text-slate-900">Comunicaciones emitidas</h3>
+        </div>
+        <div class="divide-y divide-slate-100">
+          <article *ngFor="let item of comunicaciones" class="p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h4 class="font-semibold text-slate-900">{{ item.titulo }}</h4>
+              <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ item.prioridad }}</span>
+            </div>
+            <p class="mt-2 text-sm text-slate-600">{{ item.mensaje }}</p>
+            <p class="mt-2 text-xs text-slate-400">{{ item.destinatario }} {{ item.destinatarioId || '' }} · {{ fechaTexto(item.createdAt) }}</p>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="tab === 'incidencias'" class="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+      <form class="rounded-[28px] bg-white p-5 shadow ring-1 ring-slate-200/70" (ngSubmit)="crearIncidenciaManual()">
+        <h3 class="text-xl font-semibold text-slate-900">Registrar incidencia</h3>
+        <div class="mt-4 space-y-3">
+          <input [(ngModel)]="incidenciaForm.tipo" name="tipo" type="text" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+          <select [(ngModel)]="incidenciaForm.prioridad" name="prioridadIncidencia" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm">
+            <option value="baja">Baja</option>
+            <option value="media">Media</option>
+            <option value="alta">Alta</option>
+            <option value="critica">Critica</option>
+          </select>
+          <select [(ngModel)]="incidenciaForm.actorId" name="actorIdIncidencia" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm">
+            <option value="">Sin actor especifico</option>
+            <option *ngFor="let actor of actores" [value]="actor.id">{{ nombreActor(actor) }} - {{ actor.perfil }}</option>
+          </select>
+          <input [(ngModel)]="incidenciaForm.pedidoId" name="pedidoId" type="text" placeholder="Pedido relacionado" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+          <input [(ngModel)]="incidenciaForm.titulo" name="tituloIncidencia" type="text" placeholder="Titulo" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm" />
+          <textarea [(ngModel)]="incidenciaForm.detalle" name="detalleIncidencia" rows="5" placeholder="Detalle" class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm"></textarea>
+          <button type="submit" [disabled]="guardandoIncidencia" class="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">
+            {{ guardandoIncidencia ? 'Guardando...' : 'Crear incidencia' }}
+          </button>
+        </div>
+      </form>
+
+      <div class="space-y-3">
+        <article *ngFor="let item of incidencias" class="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-100">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h4 class="font-semibold text-slate-900">{{ item.titulo }}</h4>
+              <p class="text-xs text-slate-500">{{ item.tipo }} · {{ item.actorNombre || item.actorId || 'Admin' }} · {{ fechaTexto(item.createdAt) }}</p>
+            </div>
+            <div class="flex gap-2">
+              <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">{{ item.prioridad }}</span>
+              <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ item.estado }}</span>
+            </div>
+          </div>
+          <p class="mt-3 text-sm text-slate-600">{{ item.detalle }}</p>
+          <textarea [(ngModel)]="respuestaIncidencia[item.id]" rows="2" placeholder="Respuesta o nota administrativa" class="mt-3 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"></textarea>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button class="rounded-lg bg-sky-600 px-3 py-2 text-xs font-semibold text-white" [disabled]="resolviendoIncidencia[item.id]" (click)="actualizarIncidencia(item, 'en_revision')">En revision</button>
+            <button class="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white" [disabled]="resolviendoIncidencia[item.id]" (click)="actualizarIncidencia(item, 'resuelta')">Resolver</button>
+            <button class="rounded-lg bg-slate-600 px-3 py-2 text-xs font-semibold text-white" [disabled]="resolviendoIncidencia[item.id]" (click)="actualizarIncidencia(item, 'descartada')">Descartar</button>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div *ngIf="tab === 'chats'" class="rounded-[28px] bg-white shadow ring-1 ring-slate-200/70">
+      <div class="border-b border-slate-100 p-5">
+        <h3 class="text-xl font-semibold text-slate-900">Actividad reciente de chats</h3>
+      </div>
+      <div class="divide-y divide-slate-100">
+        <article *ngFor="let chat of chats" class="p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h4 class="font-semibold text-slate-900">{{ chat.userNombre || chat.userId }} ↔ {{ chat.fleteroNombre || chat.fleteroId }}</h4>
+              <p class="text-xs text-slate-500">{{ chat.id }} · {{ chat.estado || 'activo' }} · {{ fechaTexto(chat.lastMessageTime) }}</p>
+            </div>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ chat.path }}</span>
+          </div>
+          <p class="mt-2 text-sm text-slate-600">{{ chat.lastMessage || 'Sin mensajes recientes' }}</p>
+        </article>
+      </div>
+    </div>
+  </ng-container>
+</section>
