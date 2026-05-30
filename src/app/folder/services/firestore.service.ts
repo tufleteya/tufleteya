@@ -7,8 +7,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import 'firebase/firestore';
 import firebase from 'firebase/compat/app';
 import { AuthService } from './auth.service';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from 'src/app/firebase-config';
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { environment } from 'src/environments/environment';
 
 import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
@@ -28,7 +27,8 @@ export class FirestoreService {
   
   constructor(public angularFirestore: AngularFirestore,
               public fireStorage: AngularFireStorage,
-              public auths : AuthService
+              public auths : AuthService,
+              private angularFireFunctions: AngularFireFunctions
              ) { }
 
              private sanitizeWriteData<T>(data: T): T {
@@ -139,7 +139,7 @@ export class FirestoreService {
              }
 
              private getCallable(functionName: string) {
-              return httpsCallable(functions, functionName);
+              return (data: unknown) => firstValueFrom(this.angularFireFunctions.httpsCallable(functionName)(data));
              }
 
              private shouldUseLocalConfirmationFallback(): boolean {

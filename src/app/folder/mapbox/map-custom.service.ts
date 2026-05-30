@@ -33,7 +33,7 @@ export class MapCustomService {
     private httpClient: HttpClient,
     private locationService: LocationService
   ) {
-    this.mapbox.accessToken = environment.apiKey;
+    this.mapbox.accessToken = environment.mapbox.accessToken;
     this.ensureMapboxStyles();
   }
 
@@ -111,7 +111,7 @@ export class MapCustomService {
     const url = [
       'https://api.mapbox.com/directions/v5/mapbox/driving/',
       cleanCoords.map(([lng, lat]) => `${lng},${lat}`).join(';'),
-      `?alternatives=false&geometries=geojson&overview=full&steps=true&access_token=${environment.apiKey}`,
+      `?alternatives=false&geometries=geojson&overview=full&steps=true&access_token=${environment.mapbox.accessToken}`,
     ].join('');
 
     return this.httpClient.get(url).pipe(
@@ -160,7 +160,7 @@ export class MapCustomService {
   }
 
   getStreetName(coordinates: mapboxgl.LngLat): Observable<string> {
-    const url = `${this.mapboxGeocodingUrl}/${coordinates.lng},${coordinates.lat}.json?access_token=${environment.apiKey}&language=es`;
+    const url = `${this.mapboxGeocodingUrl}/${coordinates.lng},${coordinates.lat}.json?access_token=${environment.mapbox.accessToken}&language=es`;
 
     return this.httpClient.get(url).pipe(
       map((response: any) => {

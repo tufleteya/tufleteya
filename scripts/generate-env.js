@@ -43,9 +43,7 @@ fs.mkdirSync(envDir, { recursive: true });
 function environmentFile(production) {
   return `export const environment = {
   production: ${production},
-  fcmVapidKey: ${quote(env('FCM_VAPID_KEY'))},
-  apiKey: ${quote(env('MAPBOX_API_KEY'))},
-  firebaseConfig: {
+  firebase: {
     apiKey: ${quote(env('FIREBASE_API_KEY'))},
     authDomain: ${quote(env('FIREBASE_AUTH_DOMAIN'))},
     projectId: ${quote(env('FIREBASE_PROJECT_ID'))},
@@ -53,6 +51,10 @@ function environmentFile(production) {
     messagingSenderId: ${quote(env('FIREBASE_MESSAGING_SENDER_ID'))},
     appId: ${quote(env('FIREBASE_APP_ID'))},
     measurementId: ${quote(env('FIREBASE_MEASUREMENT_ID'))}
+  },
+  fcmVapidKey: ${quote(env('FCM_VAPID_KEY'))},
+  mapbox: {
+    accessToken: ${quote(env('MAPBOX_API_KEY'))}
   }
 };
 

@@ -21,6 +21,8 @@ const callableCors = [
   'https://tufleteyarg.web.app',
   'https://tufleteyarg.firebaseapp.com',
   'https://tufleteya.vercel.app',
+  'https://tufleteya.com',
+  'https://www.tufleteya.com',
 ];
 
 type PendingAlert = {
