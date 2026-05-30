@@ -1,0 +1,8 @@
+src/environments/
+.firebaserc
+.env
+.env.*
+android/app/google-services.json
+ios/App/App/GoogleService-Info.plist
+www/
+node_modules/
