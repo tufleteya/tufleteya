@@ -18,6 +18,8 @@ const callableCors = [
   'ionic://localhost',
   'https://fletesya-c31eb.web.app',
   'https://fletesya-c31eb.firebaseapp.com',
+  'https://tufleteyarg.web.app',
+  'https://tufleteyarg.firebaseapp.com',
   'https://tufleteya.vercel.app',
 ];
 
