@@ -6,7 +6,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "prebuild": "node scripts/generate-env.js",
     "build": "ng build",
+    "prebuild:prod": "node scripts/generate-env.js",
     "build:prod": "ng build --configuration production",
     "test": "ng test",
     "lint": "ng lint",
