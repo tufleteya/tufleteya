@@ -160,11 +160,6 @@ export class LoginComponent implements OnInit {
     try {
       let perfil = await firstValueFrom(this.roleResolverService.resolvePerfil(uid));
 
-      if (!perfil) {
-        this.roleResolverService.clearPerfilCache(uid);
-        perfil = await firstValueFrom(this.roleResolverService.resolvePerfil(uid));
-      }
-
       if (perfil) {
         console.log(`Tipo de usuario: ${perfil}`);
         await this.ensureLegacyPanelAccess(uid, perfil);
@@ -295,10 +290,6 @@ export class LoginComponent implements OnInit {
 
     try {
       let perfil = await firstValueFrom(this.roleResolverService.resolvePerfil(user.uid));
-      if (!perfil) {
-        this.roleResolverService.clearPerfilCache(user.uid);
-        perfil = await firstValueFrom(this.roleResolverService.resolvePerfil(user.uid));
-      }
 
       if (perfil) {
         await this.ensureLegacyPanelAccess(user.uid, perfil);

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 import { PanelAccess, Perfil, PerfilApp, PermisoPanel, RolPanel, UserF, UserU } from '../models/models';
 import { FirestoreService } from './firestore.service';
@@ -118,29 +118,25 @@ export class RoleResolverService {
           return of(panelAccess.rol as Perfil);
         }
 
-        return this.safeGetDoc<UserU>('Usuarios', uid).pipe(
-          switchMap((usuarioRaiz) => {
+        return forkJoin({
+          usuarioRaiz: this.safeGetDoc<UserU>('Usuarios', uid),
+          usuarioPersonal: this.safeGetDoc<UserU>(`Usuarios/${uid}/DatosPersonales`, uid),
+          fletero: this.safeGetDoc<UserF>('Fleteros', uid),
+        }).pipe(
+          map(({ usuarioRaiz, usuarioPersonal, fletero }) => {
             if (usuarioRaiz?.perfilActivo || usuarioRaiz?.perfil) {
-              return of((usuarioRaiz.perfilActivo || usuarioRaiz.perfil) as Perfil);
+              return (usuarioRaiz.perfilActivo || usuarioRaiz.perfil) as Perfil;
             }
 
-            return this.safeGetDoc<UserU>(`Usuarios/${uid}/DatosPersonales`, uid).pipe(
-              switchMap((usuarioPersonal) => {
-                if (usuarioPersonal?.perfilActivo || usuarioPersonal?.perfil) {
-                  return of((usuarioPersonal.perfilActivo || usuarioPersonal.perfil) as Perfil);
-                }
+            if (usuarioPersonal?.perfilActivo || usuarioPersonal?.perfil) {
+              return (usuarioPersonal.perfilActivo || usuarioPersonal.perfil) as Perfil;
+            }
 
-                return this.safeGetDoc<UserF>('Fleteros', uid).pipe(
-                  map((fletero) => {
-                    if (fletero?.perfilActivo || fletero?.perfil) {
-                      return (fletero.perfilActivo || fletero.perfil) as Perfil;
-                    }
+            if (fletero?.perfilActivo || fletero?.perfil) {
+              return (fletero.perfilActivo || fletero.perfil) as Perfil;
+            }
 
-                    return null;
-                  })
-                );
-              })
-            );
+            return null;
           })
         );
       })

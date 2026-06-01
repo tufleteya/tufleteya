@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { IonContent } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { MetodoRegistro, EstadoRegistro, datosVehiculo, provincias, tipoVehiculo, UserF } from 'src/app/folder/models/models';
 import { AuthService } from 'src/app/folder/services/auth.service';
@@ -14,6 +15,8 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./paso1f.component.scss'],
 })
 export class Paso1fComponent implements OnInit {
+  @ViewChild(IonContent) private content?: IonContent;
+
   private googleRedirectHandled = false;
   valueSelected: '1' | '2' | '3' = '1';
   step1Completed = false;
@@ -98,7 +101,7 @@ export class Paso1fComponent implements OnInit {
 
   private hydrateStepperState(uid: string): void {
     this.step1Completed = true;
-    this.valueSelected = '2';
+    this.setStep('2', false);
     this.firestore.getDoc<UserF>('Fleteros', uid).pipe(take(1)).subscribe((data) => {
       if (!data) {
         return;
@@ -111,9 +114,21 @@ export class Paso1fComponent implements OnInit {
 
       if (data.estadoRegistro === 'vehiculo' || data.estadoRegistro === 'documentacion' || data.estadoRegistro === 'pendiente_revision' || data.estadoRegistro === 'completo') {
         this.step1Completed = true;
-        this.valueSelected = '3';
         this.step2Completed = true;
+        this.setStep('3', false);
       }
+    });
+  }
+
+  private setStep(step: '1' | '2' | '3', scrollToTop = true): void {
+    this.valueSelected = step;
+
+    if (!scrollToTop) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      void this.content?.scrollToTop(250);
     });
   }
 
@@ -176,21 +191,21 @@ export class Paso1fComponent implements OnInit {
   }
 
   btn1(): void {
-    this.valueSelected = '1';
+    this.setStep('1');
   }
 
   btn2(): void {
     if (!this.canAccessStep('2')) {
       return;
     }
-    this.valueSelected = '2';
+    this.setStep('2');
   }
 
   btn3(): void {
     if (!this.canAccessStep('3')) {
       return;
     }
-    this.valueSelected = '3';
+    this.setStep('3');
   }
 
   canAccessStep(step: '1' | '2' | '3'): boolean {
@@ -346,7 +361,7 @@ export class Paso1fComponent implements OnInit {
         this.metodoRegistro = 'email';
         this.registerF.metodoRegistro = 'email';
         this.step1Completed = true;
-        this.valueSelected = '2';
+        this.setStep('2');
         this.interaction.presentToast('Cuenta creada. Completá tus datos personales.');
       } else {
         this.interaction.presentToast('No pudimos recuperar tu sesión.');
@@ -442,7 +457,7 @@ export class Paso1fComponent implements OnInit {
       this.metodoRegistro = 'google';
       this.registerF.metodoRegistro = 'google';
       this.step1Completed = true;
-      this.valueSelected = '2';
+      this.setStep('2');
       this.interaction.presentToast('Cuenta Google vinculada. Completá tus datos personales.');
     } catch (error) {
       shouldClearPendingRegistration = true;
@@ -540,7 +555,7 @@ export class Paso1fComponent implements OnInit {
       this.metodoRegistro = 'google';
       this.registerF.metodoRegistro = 'google';
       this.step1Completed = true;
-      this.valueSelected = '2';
+      this.setStep('2');
       this.interaction.presentToast('Cuenta Google vinculada. Completá tus datos personales.');
     } catch (error) {
       console.error('Error recuperando redirect de Google:', error);
@@ -589,7 +604,7 @@ export class Paso1fComponent implements OnInit {
       return;
     }
     this.step2Completed = true;
-    this.valueSelected = '3';
+    this.setStep('3');
     this.interaction.presentToast('Perfecto. Ahora completá el vehículo para continuar.');
   }
 

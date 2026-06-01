@@ -43,7 +43,10 @@
 
                 <div class="register-actions">
                   <button type="button" (click)="siguiente()" class="u-btn u-btn-1">Continuar con correo</button>
-                  <button type="button" (click)="signInWithGoogle()" class="u-btn u-btn-1">Ingresar con Google</button>
+                  <button type="button" (click)="signInWithGoogle()" class="tfy-google-button u-btn">
+                    <ion-icon name="logo-google"></ion-icon>
+                    <span>Ingresar con Google</span>
+                  </button>
                   <button type="button" (click)="volver()" class="u-btn u-btn-2">Volver</button>
                 </div>
               </form>

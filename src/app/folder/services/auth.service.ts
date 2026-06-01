@@ -36,7 +36,9 @@ export class AuthService {
 
     if (user?.uid) {
       await this.waitForAuthenticatedSession(user.uid);
-      await this.syncEmailVerificationStatus(user.uid, Boolean(user.emailVerified));
+      this.syncEmailVerificationStatus(user.uid, Boolean(user.emailVerified)).catch((error) => {
+        console.warn('No se pudo sincronizar el estado de verificacion del email:', error);
+      });
     }
 
     return response;
@@ -163,6 +165,13 @@ export class AuthService {
 
   private normalizeEmail(email: string): string {
     return (email || '').trim().toLowerCase();
+  }
+
+  private isEmailAlreadyInUse(error: unknown): boolean {
+    const code = String((error as any)?.code || '').toLowerCase();
+    const message = String((error as any)?.message || '').toLowerCase();
+
+    return code.includes('email-already-in-use') || message.includes('email-already-in-use');
   }
 
   private async ensureWebAuthPersistence(): Promise<void> {
@@ -359,14 +368,8 @@ export class AuthService {
 
   registerF(registerF: UserF, habilitado: boolean): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.findExistingProfileByEmail(registerF.email)
-        .then((existing) => {
-          if (existing.exists) {
-            throw new Error(`duplicate-email:${existing.perfil}`);
-          }
-
-          return this.authS.createUserWithEmailAndPassword(this.normalizeEmail(registerF.email), registerF.password);
-        })
+      this.ensureWebAuthPersistence()
+        .then(() => this.authS.createUserWithEmailAndPassword(this.normalizeEmail(registerF.email), registerF.password))
         .then((result) => {
           const user = result.user;
           const fechaRegistro = new Date();
@@ -408,7 +411,15 @@ export class AuthService {
             reject(error); // Rechaza la promesa en caso de error en Firestore
           });
         })
-        .catch((error) => {
+        .catch(async (error) => {
+          if (this.isEmailAlreadyInUse(error)) {
+            const existing = await this.findExistingProfileByEmail(registerF.email).catch(() => (
+              { exists: false } as { exists: boolean; perfil?: 'Usuario' | 'Fletero'; uid?: string }
+            ));
+            reject(new Error(`duplicate-email:${existing.perfil || ''}`));
+            return;
+          }
+
           reject(error); // Rechaza la promesa en caso de error en createUserWithEmailAndPassword
         });
     });
@@ -418,14 +429,8 @@ export class AuthService {
 
   registerU(registerU: UserU): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.findExistingProfileByEmail(registerU.email)
-        .then((existing) => {
-          if (existing.exists) {
-            throw new Error(`duplicate-email:${existing.perfil}`);
-          }
-
-          return this.authS.createUserWithEmailAndPassword(this.normalizeEmail(registerU.email), registerU.password);
-        })
+      this.ensureWebAuthPersistence()
+        .then(() => this.authS.createUserWithEmailAndPassword(this.normalizeEmail(registerU.email), registerU.password))
         .then((result) => {
           const user = result.user;
           const fechaRegistro = new Date();
@@ -455,7 +460,15 @@ export class AuthService {
             reject(error); // Rechaza la promesa en caso de error en Firestore
           });
         })
-        .catch((error) => {
+        .catch(async (error) => {
+          if (this.isEmailAlreadyInUse(error)) {
+            const existing = await this.findExistingProfileByEmail(registerU.email).catch(() => (
+              { exists: false } as { exists: boolean; perfil?: 'Usuario' | 'Fletero'; uid?: string }
+            ));
+            reject(new Error(`duplicate-email:${existing.perfil || ''}`));
+            return;
+          }
+
           reject(error); // Rechaza la promesa en caso de error en createUserWithEmailAndPassword
         });
     });
