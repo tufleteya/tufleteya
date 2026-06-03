@@ -6,12 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { ChatComponent } from './chat.component';
 import { ChatRoutingModule } from './chat-routing.module';
 import { ComponentsModule } from 'src/app/components/components.module';
+import { SupportChatComponent } from './support-chat.component';
 
 
 
 @NgModule({
   declarations: [
     ChatComponent,
+    SupportChatComponent,
   ],
   imports: [
     CommonModule,
@@ -22,6 +24,7 @@ import { ComponentsModule } from 'src/app/components/components.module';
   ],
   exports: [
     ChatComponent,
+    SupportChatComponent,
   ]
 })
 export class ChatModule { }

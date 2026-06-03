@@ -48,6 +48,17 @@
   <button
     type="button"
     class="tabs-item"
+    [class.tabs-item--active]="isSupportActive()"
+    *ngIf="!rolPanel && (rol === 'Usuario' || rol === 'Fletero')"
+    [routerLink]="['/chat/soporte/ayuda']"
+  >
+    <ion-icon name="headset-outline"></ion-icon>
+    <span>Soporte</span>
+  </button>
+
+  <button
+    type="button"
+    class="tabs-item"
     [class.tabs-item--active]="isProfileActive()"
     *ngIf="!rolPanel"
     [routerLink]="['/profile']"

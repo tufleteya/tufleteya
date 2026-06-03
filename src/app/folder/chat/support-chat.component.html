@@ -1,0 +1,65 @@
+<app-header></app-header>
+
+<ion-content class="support-page">
+  <section class="support-chat">
+    <header class="support-chat__header">
+      <div>
+        <p>Soporte TuFleteYa</p>
+        <h1>Ayuda en linea</h1>
+        <span [class.is-waiting]="supportChat?.status === 'en_espera'">
+          {{ supportChat?.status === 'atendido' ? 'En atencion' : 'En espera' }}
+        </span>
+      </div>
+      <ion-icon name="headset-outline"></ion-icon>
+    </header>
+
+    <div class="support-chat__reasons" *ngIf="!loading">
+      <button
+        type="button"
+        *ngFor="let motivo of motivos"
+        [class.is-selected]="asunto === motivo"
+        (click)="seleccionarMotivo(motivo)">
+        {{ motivo }}
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="support-chat__empty">
+      Preparando tu conversacion...
+    </div>
+
+    <div *ngIf="!loading" class="support-chat__messages">
+      <div *ngIf="(mensajes$ | async)?.length === 0" class="support-chat__empty">
+        Escribinos que paso y el equipo de soporte lo toma desde la cola.
+      </div>
+
+      <div
+        *ngFor="let msg of mensajes$ | async; trackBy: trackByMensajeId"
+        class="support-chat__bubble-row"
+        [class.is-own]="msg.senderId === currentUserId">
+        <article class="support-chat__bubble">
+          <p>{{ msg.text }}</p>
+          <time *ngIf="getFecha(msg.timestamp) as fecha">{{ fecha | date:'shortTime' }}</time>
+        </article>
+      </div>
+    </div>
+
+    <footer class="support-chat__composer">
+      <ion-textarea
+        [(ngModel)]="nuevoMensaje"
+        autoGrow="true"
+        rows="1"
+        placeholder="Escribe tu consulta"
+        [disabled]="enviando">
+      </ion-textarea>
+      <ion-button
+        type="button"
+        shape="round"
+        (click)="enviarMensaje()"
+        [disabled]="enviando || !nuevoMensaje.trim()">
+        <ion-icon name="send-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </footer>
+  </section>
+</ion-content>
+
+<app-tabs-u></app-tabs-u>

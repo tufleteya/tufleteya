@@ -13,6 +13,7 @@ import { AccesosAdminComponent } from './accesos-admin/accesos-admin.component';
 import { AdminComponent } from './admin.component';
 import { AdminRoutingModule } from './admin-routing.module';
 import { ComponentsModule } from 'src/app/components/components.module';
+import { SoporteComponentComponent } from './soporte-component/soporte-component.component';
 
 
 
@@ -23,6 +24,7 @@ import { ComponentsModule } from 'src/app/components/components.module';
     EstadisticasComponentComponent,
     FleterosComponentComponent,
     AccesosAdminComponent,
+    SoporteComponentComponent,
     OperacionesComponentComponent,
     PedidosComponentComponent,
     UsuariosComponentComponent,
@@ -40,6 +42,7 @@ import { ComponentsModule } from 'src/app/components/components.module';
     EstadisticasComponentComponent,
     FleterosComponentComponent,
     AccesosAdminComponent,
+    SoporteComponentComponent,
     OperacionesComponentComponent,
     PedidosComponentComponent,
     UsuariosComponentComponent,

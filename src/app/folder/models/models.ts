@@ -493,3 +493,39 @@ export interface Mensaje {
   seen?: boolean;
   timestamp?: Date | Timestamp | null;
 }
+
+export type SupportChatStatus = 'en_espera' | 'atendido' | 'archivado' | 'cerrado';
+export type SupportRequesterType = 'Usuario' | 'Fletero';
+export type SupportSenderRole = 'usuario' | 'fletero' | 'soporte' | 'admin';
+
+export interface SupportChat {
+  id: string;
+  requesterId: string;
+  requesterType: SupportRequesterType;
+  requesterName?: string;
+  requesterPhone?: string;
+  requesterEmail?: string;
+  status: SupportChatStatus;
+  subject?: string;
+  assignedTo?: string | null;
+  assignedToName?: string | null;
+  createdAt: any;
+  updatedAt: any;
+  archivedAt?: any;
+  closedAt?: any;
+  lastMessage?: string;
+  lastMessageAt?: any;
+  lastMessageBy?: string;
+  unreadBySupport?: number;
+  unreadByRequester?: number;
+}
+
+export interface SupportMessage {
+  id?: string;
+  chatId: string;
+  senderId: string;
+  senderRole: SupportSenderRole;
+  text: string;
+  timestamp?: Date | Timestamp | null;
+  leido?: boolean;
+}

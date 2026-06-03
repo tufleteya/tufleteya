@@ -60,6 +60,10 @@ service cloud.firestore {
       return hasAdminDocAccess() && panelRole() == 'Soporte';
     }
 
+    function isSupportStaff() {
+      return isAdmin() || isSoporte();
+    }
+
     function canReadUsuariosAdmin() {
       return isAdmin() || isSoporte();
     }
@@ -111,6 +115,69 @@ service cloud.firestore {
 
     function isChatParticipant(userId, fleteroId) {
       return isAdmin() || isSelf(userId) || isSelf(fleteroId);
+    }
+
+    function validSupportRequesterType() {
+      return request.resource.data.requesterType in ['Usuario', 'Fletero'];
+    }
+
+    function supportRequesterFromResource() {
+      return signedIn()
+        && request.resource.data.requesterId == request.auth.uid
+        && validSupportRequesterType();
+    }
+
+    function supportRequesterFromStored() {
+      return signedIn() && resource.data.requesterId == request.auth.uid;
+    }
+
+    function supportChatVisible() {
+      return isSupportStaff() || supportRequesterFromStored();
+    }
+
+    function supportChatUpdateByRequester() {
+      return supportRequesterFromStored()
+        && request.resource.data.requesterId == resource.data.requesterId
+        && request.resource.data.requesterType == resource.data.requesterType
+        && (
+          request.resource.data.status == resource.data.status ||
+          request.resource.data.status == 'en_espera'
+        )
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'subject',
+          'status',
+          'updatedAt',
+          'lastMessage',
+          'lastMessageAt',
+          'lastMessageBy',
+          'unreadBySupport',
+          'unreadByRequester'
+        ]);
+    }
+
+    function supportMessageSenderMatches(chatId) {
+      return signedIn()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.chatId == chatId
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && (
+          (
+            request.auth.uid == get(/databases/$(database)/documents/SupportChats/$(chatId)).data.requesterId
+            && (
+              (
+                get(/databases/$(database)/documents/SupportChats/$(chatId)).data.requesterType == 'Usuario'
+                && request.resource.data.senderRole == 'usuario'
+              ) ||
+              (
+                get(/databases/$(database)/documents/SupportChats/$(chatId)).data.requesterType == 'Fletero'
+                && request.resource.data.senderRole == 'fletero'
+              )
+            )
+          ) ||
+          (isAdmin() && request.resource.data.senderRole in ['admin', 'soporte']) ||
+          (isSoporte() && request.resource.data.senderRole == 'soporte')
+        );
     }
 
     function chatParticipantFromResource() {
@@ -415,6 +482,29 @@ service cloud.firestore {
         || (signedIn() && resource.data.destinatario == 'usuario' && resource.data.destinatarioId == request.auth.uid)
         || (signedIn() && resource.data.destinatario == 'fletero' && resource.data.destinatarioId == request.auth.uid);
       allow create, update, delete: if isAdmin() || isSoporte();
+    }
+
+    match /SupportChats/{chatId} {
+      allow read: if supportChatVisible();
+      allow create: if isSupportStaff() || (
+        supportRequesterFromResource()
+        && request.resource.data.id == chatId
+        && request.resource.data.status == 'en_espera'
+        && request.resource.data.createdAt != null
+        && request.resource.data.updatedAt != null
+      );
+      allow update: if isSupportStaff() || supportChatUpdateByRequester();
+      allow delete: if isAdmin();
+
+      match /mensajes/{messageId} {
+        allow read: if isSupportStaff()
+          || (
+            signedIn()
+            && get(/databases/$(database)/documents/SupportChats/$(chatId)).data.requesterId == request.auth.uid
+          );
+        allow create: if supportMessageSenderMatches(chatId);
+        allow update, delete: if isAdmin();
+      }
     }
 
     match /ReportesIncidencias/{reporteId} {

@@ -3,7 +3,15 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore'; 
 import firebase from 'firebase/compat/app';
 
-import { Chat, Mensaje } from '../../folder/models/models';
+import {
+  Chat,
+  Mensaje,
+  SupportChat,
+  SupportChatStatus,
+  SupportMessage,
+  SupportRequesterType,
+  SupportSenderRole,
+} from '../../folder/models/models';
 import { Observable, of } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators'; // Necesario para adaptar la respuesta de AngularFirestore
 import 'firebase/compat/firestore';
@@ -277,6 +285,171 @@ getUsuarioById(userId: string): Observable<any> {
     .valueChanges({ idField: 'id' });
 }
 
+async getOrCreateSupportChat(
+  requesterId: string,
+  requesterType: SupportRequesterType,
+  requesterName: string,
+  requesterPhone = '',
+  requesterEmail = '',
+  subject = 'Soporte'
+): Promise<SupportChat> {
+  const activeSnap = await this.firestore
+    .collection<SupportChat>('SupportChats', ref =>
+      ref.where('requesterId', '==', requesterId)
+         .orderBy('updatedAt', 'desc')
+         .limit(10)
+    )
+    .get()
+    .toPromise();
+
+  const activeDoc = activeSnap?.docs?.find((doc) => {
+    const status = (doc.data() as SupportChat).status;
+    return status === 'en_espera' || status === 'atendido';
+  });
+  if (activeDoc?.exists) {
+    return {
+      id: activeDoc.id,
+      ...(activeDoc.data() as SupportChat),
+    };
+  }
+
+  const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+  const chatRef = this.firestore.collection<SupportChat>('SupportChats').doc();
+  const supportChat: SupportChat = {
+    id: chatRef.ref.id,
+    requesterId,
+    requesterType,
+    requesterName,
+    requesterPhone,
+    requesterEmail,
+    subject,
+    status: 'en_espera',
+    assignedTo: null,
+    assignedToName: null,
+    createdAt: timestamp as any,
+    updatedAt: timestamp as any,
+    lastMessage: '',
+    lastMessageAt: timestamp as any,
+    unreadBySupport: 0,
+    unreadByRequester: 0,
+  };
+
+  await chatRef.set(supportChat);
+  return supportChat;
+}
+
+getSupportChat(chatId: string): Observable<SupportChat | undefined> {
+  return this.firestore
+    .doc<SupportChat>(`SupportChats/${chatId}`)
+    .snapshotChanges()
+    .pipe(
+      map(action => action.payload.exists
+        ? ({ id: action.payload.id, ...(action.payload.data() as SupportChat) })
+        : undefined
+      )
+    );
+}
+
+getMySupportChats(requesterId: string): Observable<SupportChat[]> {
+  return this.firestore
+    .collection<SupportChat>('SupportChats', ref =>
+      ref.where('requesterId', '==', requesterId).orderBy('updatedAt', 'desc')
+    )
+    .snapshotChanges()
+    .pipe(map(actions => actions.map(action => this.mapSupportChatAction(action))));
+}
+
+getSupportQueue(status: SupportChatStatus | 'todos' = 'todos'): Observable<SupportChat[]> {
+  return this.firestore
+    .collection<SupportChat>('SupportChats', ref => {
+      const ordered = ref.orderBy('updatedAt', 'desc');
+      return status === 'todos' ? ordered : ref.where('status', '==', status).orderBy('updatedAt', 'desc');
+    })
+    .snapshotChanges()
+    .pipe(map(actions => actions.map(action => this.mapSupportChatAction(action))));
+}
+
+getSupportMessages(chatId: string): Observable<SupportMessage[]> {
+  return this.firestore
+    .collection<SupportMessage>(`SupportChats/${chatId}/mensajes`, ref => ref.orderBy('timestamp', 'asc'))
+    .snapshotChanges()
+    .pipe(
+      map(actions => actions.map(action => ({
+        id: action.payload.doc.id,
+        ...(action.payload.doc.data() as SupportMessage),
+      })))
+    );
+}
+
+async sendSupportMessage(
+  chatId: string,
+  senderId: string,
+  senderRole: SupportSenderRole,
+  text: string
+): Promise<void> {
+  const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+  const message: SupportMessage = {
+    chatId,
+    senderId,
+    senderRole,
+    text,
+    timestamp: timestamp as any,
+    leido: false,
+  };
+
+  await this.firestore.collection(`SupportChats/${chatId}/mensajes`).add(message);
+
+  const fromSupport = senderRole === 'soporte' || senderRole === 'admin';
+  await this.firestore.doc(`SupportChats/${chatId}`).set({
+    lastMessage: text,
+    lastMessageAt: timestamp,
+    lastMessageBy: senderId,
+    updatedAt: timestamp,
+    status: fromSupport ? 'atendido' : 'en_espera',
+    unreadBySupport: firebase.firestore.FieldValue.increment(fromSupport ? 0 : 1),
+    unreadByRequester: firebase.firestore.FieldValue.increment(fromSupport ? 1 : 0),
+  }, { merge: true });
+}
+
+assignSupportChat(chatId: string, supportUid: string, supportName: string): Promise<void> {
+  return this.firestore.doc(`SupportChats/${chatId}`).set({
+    assignedTo: supportUid,
+    assignedToName: supportName,
+    status: 'atendido',
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+}
+
+updateSupportChatStatus(chatId: string, status: SupportChatStatus): Promise<void> {
+  const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+  const update: Partial<SupportChat> & { updatedAt: any } = {
+    status,
+    updatedAt: timestamp,
+  };
+
+  if (status === 'archivado') {
+    update.archivedAt = timestamp;
+  }
+
+  if (status === 'cerrado') {
+    update.closedAt = timestamp;
+  }
+
+  return this.firestore.doc(`SupportChats/${chatId}`).set(update, { merge: true });
+}
+
+updateSupportChatSubject(chatId: string, subject: string): Promise<void> {
+  return this.firestore.doc(`SupportChats/${chatId}`).set({
+    subject,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+}
+
+markSupportChatRead(chatId: string, reader: 'support' | 'requester'): Promise<void> {
+  const field = reader === 'support' ? 'unreadBySupport' : 'unreadByRequester';
+  return this.firestore.doc(`SupportChats/${chatId}`).set({ [field]: 0 }, { merge: true });
+}
+
 private mapChatAction(action: any): Chat {
   const data = action.payload.doc.data() as Chat;
   const path = action.payload.doc.ref.path;
@@ -288,23 +461,39 @@ private mapChatAction(action: any): Chat {
 }
 
 private async resolveChatDocPath(chatId: string): Promise<string | null> {
-  const rootSnap = await this.firestore.doc<Chat>(`chats/${chatId}`).get().toPromise();
-  if (rootSnap?.exists) {
-    return `chats/${chatId}`;
-  }
-
   const groupSnap = await this.firestore
     .collectionGroup<Chat>('chats', ref => ref.where('id', '==', chatId).limit(1))
     .get()
     .toPromise();
 
   const doc = groupSnap?.docs?.[0];
-  return doc ? doc.ref.path : null;
+  if (doc) {
+    return doc.ref.path;
+  }
+
+  try {
+    const rootSnap = await this.firestore.doc<Chat>(`chats/${chatId}`).get().toPromise();
+    if (rootSnap?.exists) {
+      return `chats/${chatId}`;
+    }
+  } catch (error) {
+    console.warn('No se pudo leer el chat raiz, se continua con la busqueda anidada:', error);
+  }
+
+  return null;
 }
 
 private getDocIdFromPath(path: string): string {
   const parts = path.split('/').filter(Boolean);
   return parts[parts.length - 1] || path;
+}
+
+private mapSupportChatAction(action: any): SupportChat {
+  const data = action.payload.doc.data() as SupportChat;
+  return {
+    id: data.id || action.payload.doc.id,
+    ...data,
+  };
 }
 
 }

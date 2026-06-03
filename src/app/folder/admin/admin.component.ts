@@ -49,6 +49,13 @@ export class AdminComponent implements OnInit, OnDestroy {
       roles: ['Admin', 'Soporte'] as RolPanel[],
     },
     {
+      label: 'Soporte',
+      route: '/admin/soporte',
+      icon: 'headset-outline',
+      eyebrow: 'Chats',
+      roles: ['Admin', 'Soporte'] as RolPanel[],
+    },
+    {
       label: 'Operaciones',
       route: '/admin/operaciones',
       icon: 'alert-circle-outline',

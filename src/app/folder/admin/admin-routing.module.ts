@@ -9,6 +9,7 @@ import { PedidosComponentComponent } from './pedidos-component/pedidos-component
 import { EstadisticasComponentComponent } from './estadisticas-component/estadisticas-component.component';
 import { OperacionesComponentComponent } from './operaciones-component/operaciones-component.component';
 import { AccesosAdminComponent } from './accesos-admin/accesos-admin.component';
+import { SoporteComponentComponent } from './soporte-component/soporte-component.component';
 import { RoleGuard } from '../guards/role.guard';
 
 const routes: Routes = [
@@ -23,6 +24,7 @@ const routes: Routes = [
       { path: 'fleteros', component: FleterosComponentComponent, canActivate: [RoleGuard], data: { roles: ['Admin', 'Verificador'] } },
       { path: 'accesos', component: AccesosAdminComponent, canActivate: [RoleGuard], data: { roles: ['Admin'] } },
       { path: 'pedidos', component: PedidosComponentComponent, canActivate: [RoleGuard], data: { roles: ['Admin', 'Soporte'] } },
+      { path: 'soporte', component: SoporteComponentComponent, canActivate: [RoleGuard], data: { roles: ['Admin', 'Soporte'] } },
       { path: 'operaciones', component: OperacionesComponentComponent, canActivate: [RoleGuard], data: { roles: ['Admin', 'Soporte'] } },
       { path: 'estadisticas', component: EstadisticasComponentComponent, canActivate: [RoleGuard], data: { roles: ['Admin', 'Verificador'] } },
       { path: 'reportes', component: OperacionesComponentComponent, canActivate: [RoleGuard], data: { roles: ['Admin', 'Soporte'] } },

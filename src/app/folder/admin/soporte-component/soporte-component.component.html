@@ -1,0 +1,113 @@
+<section class="support-panel">
+  <header class="support-panel__header">
+    <div>
+      <p>Cola de atencion</p>
+      <h2>Soporte</h2>
+    </div>
+
+    <ion-segment [(ngModel)]="filtro" (ionChange)="cargarCola()">
+      <ion-segment-button *ngFor="let item of filtros" [value]="item.value">
+        <ion-label>{{ item.label }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </header>
+
+  <div class="support-panel__layout">
+    <aside class="support-panel__queue">
+      <button
+        type="button"
+        *ngFor="let chat of chats$ | async; trackBy: trackByChatId"
+        class="support-ticket"
+        [class.is-active]="selectedChat?.id === chat.id"
+        (click)="seleccionarChat(chat)">
+        <div class="support-ticket__top">
+          <strong>{{ chat.requesterName || chat.requesterType }}</strong>
+          <span [class.is-waiting]="chat.status === 'en_espera'">{{ chat.status }}</span>
+        </div>
+        <p>{{ chat.lastMessage || 'Sin mensajes todavia' }}</p>
+        <small>
+          {{ chat.requesterType }}
+          <ng-container *ngIf="getFecha(chat.updatedAt) as fecha"> · {{ fecha | date:'short' }}</ng-container>
+        </small>
+        <b *ngIf="chat.unreadBySupport">{{ chat.unreadBySupport }}</b>
+      </button>
+
+      <div *ngIf="(chats$ | async)?.length === 0" class="support-panel__empty">
+        No hay chats en esta vista.
+      </div>
+    </aside>
+
+    <section class="support-panel__conversation" *ngIf="selectedChat; else emptyState">
+      <header class="support-panel__conversation-header">
+        <div>
+          <h3>{{ selectedChat.requesterName || selectedChat.requesterType }}</h3>
+          <p>
+            {{ selectedChat.requesterType }}
+            <span *ngIf="selectedChat.requesterPhone"> · {{ selectedChat.requesterPhone }}</span>
+            <span *ngIf="selectedChat.assignedToName"> · Atiende {{ selectedChat.assignedToName }}</span>
+          </p>
+        </div>
+
+        <div class="support-panel__actions">
+          <ion-button type="button" fill="outline" size="small" (click)="tomarChat()" *ngIf="!selectedChat.assignedTo">
+            <ion-icon name="hand-left-outline" slot="start"></ion-icon>
+            Tomar
+          </ion-button>
+          <ion-button type="button" fill="outline" size="small" (click)="reabrirChat()" *ngIf="selectedChat.status === 'archivado' || selectedChat.status === 'cerrado'">
+            <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-button type="button" fill="outline" size="small" (click)="archivarChat()" *ngIf="selectedChat.status !== 'archivado'">
+            <ion-icon name="archive-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-button type="button" fill="outline" size="small" color="medium" (click)="cerrarChat()" *ngIf="selectedChat.status !== 'cerrado'">
+            <ion-icon name="checkmark-circle-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+      </header>
+
+      <div class="support-panel__messages">
+        <article
+          *ngFor="let msg of mensajes$ | async; trackBy: trackByMessageId"
+          class="support-message"
+          [class.is-agent]="msg.senderRole === 'soporte' || msg.senderRole === 'admin'">
+          <p>{{ msg.text }}</p>
+          <time *ngIf="getFecha(msg.timestamp) as fecha">{{ fecha | date:'shortTime' }}</time>
+        </article>
+      </div>
+
+      <div class="support-panel__quick-replies" *ngIf="selectedChat.status !== 'cerrado' && selectedChat.status !== 'archivado'">
+        <button
+          type="button"
+          *ngFor="let respuestaRapida of respuestasRapidas"
+          (click)="usarRespuestaRapida(respuestaRapida)">
+          {{ respuestaRapida }}
+        </button>
+      </div>
+
+      <footer class="support-panel__composer">
+        <ion-textarea
+          [(ngModel)]="respuesta"
+          rows="1"
+          autoGrow="true"
+          placeholder="Responder al usuario"
+          [disabled]="enviando || selectedChat.status === 'cerrado' || selectedChat.status === 'archivado'">
+        </ion-textarea>
+        <ion-button
+          type="button"
+          shape="round"
+          (click)="enviarRespuesta()"
+          [disabled]="enviando || !respuesta.trim() || selectedChat.status === 'cerrado' || selectedChat.status === 'archivado'">
+          <ion-icon name="send-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </footer>
+    </section>
+
+    <ng-template #emptyState>
+      <section class="support-panel__conversation support-panel__empty-state">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+        <h3>Selecciona una conversacion</h3>
+        <p>Los chats nuevos entran en espera y quedan listos para que alguien de soporte los tome.</p>
+      </section>
+    </ng-template>
+  </div>
+</section>

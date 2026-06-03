@@ -112,6 +112,10 @@ loginn(){
     return this.matchesRoute(['/profile']);
   }
 
+  isSupportActive(): boolean {
+    return this.matchesRoute(['/chat', 'soporte', 'ayuda']);
+  }
+
   isPrimaryTabActive(): boolean {
     if (this.rol === 'Usuario') {
       return this.matchesRoute(['/fletes']);
