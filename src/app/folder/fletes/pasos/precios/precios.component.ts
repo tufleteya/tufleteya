@@ -57,6 +57,7 @@ respuestasPorPedido: { [pedidoId: string]: respuesta[] } = {};
   private readonly mainSubscriptions = new Subscription();
   private readonly respuestasSubscriptions = new Map<string, Subscription>();
   private readonly estadoViajeSubscriptions = new Map<string, Subscription>();
+  private pedidoRespuestasActivoId: string | null = null;
 
   get pedidosEnProceso(): any[] {
     return this.pedidosConfirmadosList.filter(p => {
@@ -285,6 +286,7 @@ private cerrarTodosLosModales() {
   this.confirmPendingData = null;
   this.datos2 = null;
   this.respuestas = [];
+  this.pedidoRespuestasActivoId = null;
 }
 
 async confirmarPedido() {
@@ -459,8 +461,14 @@ cargarRespuestas(pedidoId: string) {
             };
           });
           this.respuestasPorPedido[pedidoId] = respuestas;
+          if (this.pedidoRespuestasActivoId === pedidoId) {
+            this.respuestas = respuestas;
+          }
         } else {
           this.respuestasPorPedido[pedidoId] = [];
+          if (this.pedidoRespuestasActivoId === pedidoId) {
+            this.respuestas = [];
+          }
         }
       });
 
@@ -472,6 +480,7 @@ cargarRespuestas(pedidoId: string) {
 verPedidos(isOpen: boolean, pedido: DatosFlete) {
   this.isModalOpen = isOpen;
   this.datos2 = pedido;
+  this.pedidoRespuestasActivoId = pedido.id;
 
   this.cargarRespuestas(pedido['id']);
 
@@ -643,6 +652,42 @@ async seguirViaje(pedido: any): Promise<void> {
     },
   });
   await modal.present();
+}
+
+async abrirChatViaje(pedido: any): Promise<void> {
+  const fleteEnProceso = this.estadoViajePorPedido[pedido.id];
+  const fleteroId = fleteEnProceso?.fleteroId || pedido.respuesta?.idFletero || pedido.fleteroId;
+
+  if (!fleteroId || !pedido.id) {
+    this.interacion.presentToast('No encontramos el chat de este viaje todavÃ­a.');
+    return;
+  }
+
+  try {
+    const chat = await this.db.getOrCreateChat(this.userId, fleteroId, pedido.id, {
+      userNombre: `${pedido.nombre || ''} ${pedido.apellido || ''}`.trim(),
+      fleteroNombre: `${pedido.respuesta?.nombre || ''} ${pedido.respuesta?.apellido || ''}`.trim(),
+      pedidoResumen: {
+        desde: pedido.uDesde,
+        hasta: pedido.uHasta,
+        fecha: pedido.fecha,
+        hora: pedido.hora,
+        minutos: pedido.minutos,
+        cargamento: pedido.cargamento,
+      }
+    });
+
+    this.router.navigate(['/chat', chat.id], {
+      queryParams: {
+        fleteroId,
+        fleteId: pedido.id,
+        userId: this.userId,
+      }
+    });
+  } catch (error) {
+    console.error('Error al abrir chat del viaje:', error);
+    this.interacion.presentToast('No se pudo abrir el chat del viaje.');
+  }
 }
 
 private syncRespuestaSubscriptions(pedidoIds: string[]): void {

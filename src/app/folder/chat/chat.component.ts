@@ -89,6 +89,9 @@ export class ChatComponent implements OnInit, OnDestroy {
       if (user) {
         this.currentUserId = user.uid;
         this.getUserName();
+        if (this.chatId || (this.fleteroId && this.fleteId)) {
+          this.inicializarChat();
+        }
       }
     });
 
@@ -196,14 +199,19 @@ export class ChatComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const mensaje = this.nuevoMensaje.trim();
+
     this.chatService.enviarMensaje(
       this.chatId,
       this.currentUserId,
       this.rol === 'Fletero' ? 'fletero' : 'user',
-      this.nuevoMensaje
+      mensaje
     )
     .then(() => this.nuevoMensaje = '')
-    .catch((err) => console.error('Error enviando mensaje', err));
+    .catch((err) => {
+      console.error('Error enviando mensaje', err);
+      this.interaction.presentToast('No se pudo enviar el mensaje.');
+    });
   }
 
   getFecha(fecha: Date | Timestamp | null): Date | null {

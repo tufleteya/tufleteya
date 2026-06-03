@@ -4,7 +4,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import firebase from 'firebase/compat/app';
 
 import { Chat, Mensaje } from '../../folder/models/models';
-import { from, Observable, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators'; // Necesario para adaptar la respuesta de AngularFirestore
 import 'firebase/compat/firestore';
 
@@ -25,6 +25,10 @@ getChat(chatId: string): Observable<Chat | undefined> {
     );
 }
 
+private buildChatId(userId: string, fleteroId: string, pedidoId: string): string {
+  return `${userId}_${fleteroId}_${pedidoId}`;
+}
+
 async getOrCreateChat(
   userId: string,
   fleteroId: string,
@@ -32,20 +36,30 @@ async getOrCreateChat(
   fleteId: string,
   userNombre: string
 ): Promise<Chat> {
+  const pedidoId = fleteId;
+  const chatId = this.buildChatId(userId, fleteroId, pedidoId);
 
-  const existingPath = await this.resolveChatDocPath(fleteId);
+  const existingPath = await this.resolveChatDocPath(chatId) || await this.resolveChatDocPath(pedidoId);
   if (existingPath) {
     const snap = await this.firestore.doc<Chat>(existingPath).get().toPromise();
-    return { id: fleteId, path: existingPath, ...(snap?.data() as Chat) };
+    const data = ((snap?.data() || {}) as Partial<Chat>);
+    return {
+      ...data,
+      id: data.id || chatId,
+      pedidoId: data.pedidoId || pedidoId,
+      fleteId: data.fleteId || pedidoId,
+      path: existingPath,
+    } as Chat;
   }
 
-  const chatPath = `PedirFlete/${userId}/PedidosConfirmados/${fleteId}/chats/${fleteId}`;
+  const chatPath = `PedirFlete/${userId}/PedidosConfirmados/${pedidoId}/chats/${chatId}`;
   const chatRef = this.firestore.doc<Chat>(chatPath);
 
 const nuevoChat: Chat = {
-  id: fleteId,
+  id: chatId,
   path: chatPath,
-  fleteId,
+  fleteId: pedidoId,
+  pedidoId,
   userId,
   fleteroId,
   fleteroNombre,
@@ -65,7 +79,11 @@ const nuevoChat: Chat = {
   getMensajes(chatId: string): Observable<Mensaje[]> {
     return this.getChat(chatId).pipe(
       switchMap((chat) => {
-        const chatPath = chat?.path || `chats/${chatId}`;
+        if (!chat?.path) {
+          return of([]);
+        }
+
+        const chatPath = chat.path;
         return this.firestore.collection<Mensaje>(`${chatPath}/mensajes`, ref =>
           ref.orderBy('timestamp', 'asc')
         ).snapshotChanges();
@@ -92,7 +110,10 @@ async enviarMensaje(
     leido: false
   };
 
-  const chatPath = await this.resolveChatDocPath(chatId) || `chats/${chatId}`;
+  const chatPath = await this.resolveChatDocPath(chatId);
+  if (!chatPath) {
+    throw new Error(`chat-not-found:${chatId}`);
+  }
 
   await this.firestore
     .collection(`${chatPath}/mensajes`)

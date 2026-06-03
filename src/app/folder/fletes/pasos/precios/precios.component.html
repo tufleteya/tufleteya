@@ -360,6 +360,16 @@
           </div>
 
           <!-- Botón seguir viaje -->
+          <button
+                  (click)="abrirChatViaje(datos)"
+                  class="w-full bg-white text-slate-700 border border-slate-200 rounded-full px-4 py-3 shadow-sm font-semibold
+                         hover:bg-slate-50 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+            <span class="inline-flex items-center justify-center gap-2">
+              <ion-icon name="chatbubbles-outline" class="text-base"></ion-icon>
+              <span>Abrir chat del viaje</span>
+            </span>
+          </button>
+
           <button *ngIf="estadoViajePorPedido[datos.id]?.estado === 'En Viaje'"
                   (click)="seguirViaje(datos)"
                   class="w-full bg-blue-500 text-white rounded-full px-4 py-3 shadow-lg font-semibold

@@ -307,13 +307,16 @@ export class FirestoreService {
     }
   ) {
   const chatId = `${userId}_${fleteroId}_${pedidoId}`;
-  const existingPath = await this.resolveChatDocPath(chatId);
+  const existingPath = await this.resolveChatDocPath(chatId) || await this.resolveChatDocPath(pedidoId);
   if (existingPath) {
     const snap = await this.angularFirestore.doc(existingPath).get().toPromise();
+    const data = ((snap?.data() as any) || {});
     return {
-      id: chatId,
+      ...data,
+      id: data.id || chatId,
+      pedidoId: data.pedidoId || pedidoId,
+      fleteId: data.fleteId || pedidoId,
       path: existingPath,
-      ...((snap?.data() as any) || {})
     };
   }
 
