@@ -191,6 +191,27 @@ ion-modal.tfy-admin-reason-modal {
   color: #0f172a;
 }
 
+ion-modal.tfy-profile-modal {
+  --width: min(94vw, 720px);
+  --height: auto;
+  --max-height: min(90vh, 820px);
+  --border-radius: 24px;
+  --box-shadow: 0 32px 80px rgba(15, 23, 42, 0.32);
+  --backdrop-opacity: 0.5;
+  color: #0f172a;
+}
+
+ion-modal.tfy-profile-modal::part(backdrop) {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+ion-modal.tfy-profile-modal::part(content) {
+  background: transparent;
+  overflow: hidden;
+  border: 1px solid rgba(226, 232, 240, 0.36);
+}
+
 ion-modal.tfy-admin-reason-modal::part(backdrop) {
   background: rgba(15, 23, 42, 0.52);
   backdrop-filter: blur(8px);

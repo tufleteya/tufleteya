@@ -101,19 +101,21 @@ async enviarMensaje(
   senderRole: 'user' | 'fletero',
   text: string
 ) {
-  const mensaje: Mensaje = {
-    chatId,
-    senderId,
-    text,
-    senderRole,
-    timestamp: new Date(),
-    leido: false
-  };
-
   const chatPath = await this.resolveChatDocPath(chatId);
   if (!chatPath) {
     throw new Error(`chat-not-found:${chatId}`);
   }
+
+  const chatDocId = this.getDocIdFromPath(chatPath);
+  const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+  const mensaje: Mensaje = {
+    chatId: chatDocId,
+    senderId,
+    text,
+    senderRole,
+    timestamp: timestamp as any,
+    leido: false
+  };
 
   await this.firestore
     .collection(`${chatPath}/mensajes`)
@@ -124,7 +126,7 @@ async enviarMensaje(
     .set(
       {
         lastMessage: text,
-        lastMessageTime: new Date()
+        lastMessageTime: timestamp
       },
       { merge: true }
     );
@@ -298,6 +300,11 @@ private async resolveChatDocPath(chatId: string): Promise<string | null> {
 
   const doc = groupSnap?.docs?.[0];
   return doc ? doc.ref.path : null;
+}
+
+private getDocIdFromPath(path: string): string {
+  const parts = path.split('/').filter(Boolean);
+  return parts[parts.length - 1] || path;
 }
 
 }

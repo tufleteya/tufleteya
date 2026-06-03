@@ -48,6 +48,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   mensajes$!: Observable<Mensaje[]>;
   nuevoMensaje: string = '';
+  enviandoMensaje = false;
 
   loading: boolean = true;
   chatEstado: string = 'activo';
@@ -192,7 +193,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   enviarMensaje() {
-    if (!this.nuevoMensaje.trim() || !this.chatId) return;
+    if (!this.nuevoMensaje.trim() || !this.chatId || this.enviandoMensaje) return;
 
     if (this.chatEstado !== 'activo') {
       this.interaction.presentToast('No se pueden enviar mensajes en un chat finalizado.');
@@ -200,6 +201,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     const mensaje = this.nuevoMensaje.trim();
+    this.enviandoMensaje = true;
 
     this.chatService.enviarMensaje(
       this.chatId,
@@ -211,12 +213,17 @@ export class ChatComponent implements OnInit, OnDestroy {
     .catch((err) => {
       console.error('Error enviando mensaje', err);
       this.interaction.presentToast('No se pudo enviar el mensaje.');
+    })
+    .finally(() => {
+      this.enviandoMensaje = false;
     });
   }
 
-  getFecha(fecha: Date | Timestamp | null): Date | null {
+  getFecha(fecha: Date | Timestamp | any | null): Date | null {
     if (!fecha) return null;
-    return fecha instanceof Timestamp ? fecha.toDate() : fecha;
+    if (fecha instanceof Date) return fecha;
+    if (typeof fecha.toDate === 'function') return fecha.toDate();
+    return null;
   }
 
   irAlChat(chatId: string) {
@@ -290,12 +297,15 @@ export class ChatComponent implements OnInit, OnDestroy {
       return;
     }
 
+    (document.activeElement as HTMLElement | null)?.blur?.();
+
     const modal = await this.modalCtrl.create({
       component: ProfileModalComponent,
       componentProps: {
         profileData,
         profileType,
-      }
+      },
+      cssClass: 'tfy-profile-modal',
     });
     await modal.present();
   }
