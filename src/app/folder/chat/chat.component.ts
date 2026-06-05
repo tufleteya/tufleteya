@@ -118,7 +118,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     }
 
     if (this.typing && this.chatId) {
-      this.chatService.updateChatTyping(this.chatId, this.rol, false);
+      this.chatService.updateChatTyping(this.chatId, this.rol, false, this.currentUserId);
     }
 
     this.destroy$.next();
@@ -151,7 +151,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.lastInitKey = initKey;
 
     if (this.chatId) {
-      this.mensajes$ = this.chatService.getMensajes(this.chatId);
+      this.mensajes$ = this.chatService.getMensajes(this.chatId, this.currentUserId);
       this.loading = false;
       this.escucharChatActual(this.chatId);
 
@@ -180,7 +180,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       .then((chat: Chat) => {
         this.chatId = chat.id!;
         this.fleteroNombre = chat.fleteroNombre;
-        this.mensajes$ = this.chatService.getMensajes(this.chatId);
+        this.mensajes$ = this.chatService.getMensajes(this.chatId, this.currentUserId);
         this.userId = chat.userId;
         this.definirRol(chat);
         this.escucharChatActual(this.chatId);
@@ -250,14 +250,14 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     if (!this.typing) {
       this.typing = true;
-      this.chatService.updateChatTyping(this.chatId, this.rol, true);
+      this.chatService.updateChatTyping(this.chatId, this.rol, true, this.currentUserId);
     }
 
     clearTimeout(this.typingTimeout);
 
     this.typingTimeout = setTimeout(() => {
       this.typing = false;
-      this.chatService.updateChatTyping(this.chatId!, this.rol, false);
+      this.chatService.updateChatTyping(this.chatId!, this.rol, false, this.currentUserId);
     }, 1500);
   }
 
@@ -327,7 +327,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   private escucharChatActual(chatId: string) {
-    this.chatService.getChat(chatId).pipe(takeUntil(this.destroy$)).subscribe((chat) => {
+    this.chatService.getChat(chatId, this.currentUserId).pipe(takeUntil(this.destroy$)).subscribe((chat) => {
       if (!chat) return;
 
       this.chatEstado = chat.estado || 'activo';
@@ -339,7 +339,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       if (this.chatEstado !== 'activo') {
         this.nuevoMensaje = '';
         if (this.typing && this.chatId) {
-          this.chatService.updateChatTyping(this.chatId, this.rol, false);
+          this.chatService.updateChatTyping(this.chatId, this.rol, false, this.currentUserId);
         }
         this.typing = false;
         this.cerrarChatAutomaticamente();

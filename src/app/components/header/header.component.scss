@@ -1,55 +1,84 @@
-/* Cambiar el color de fondo del header a oscuro */
-.header {
-    background-color: #333; /* Fondo oscuro */
-    color: white; /* Texto blanco */
-    box-shadow: 0px 13px 30px 0px rgba(169, 218, 166, 0.968); /* Sombra que ya tenías */
+:host {
+  display: block;
+}
+
+.tfy-app-header {
+  background: linear-gradient(90deg, #12534e 0%, #0f6d61 50%, #114449 100%);
+  box-shadow: 0 10px 28px rgba(4, 24, 28, 0.28);
+  color: #ffffff;
+  padding-top: env(safe-area-inset-top);
+}
+
+.tfy-app-header::after {
+  display: none;
+}
+
+.tfy-app-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  --color: #ffffff;
+  --min-height: 72px;
+  --padding-end: 16px;
+  --padding-start: 16px;
+  background: transparent;
+  color: #ffffff;
+}
+
+.tfy-app-toolbar ion-buttons[slot='end'] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tfy-app-toolbar ion-button,
+.tfy-app-toolbar ion-menu-button {
+  --background: transparent;
+  --background-activated: rgba(255, 255, 255, 0.14);
+  --background-hover: rgba(255, 255, 255, 0.1);
+  --color: #ffffff;
+  color: #ffffff;
+  position: relative;
 }
 
 .header-back-button {
-    --color: #ffffff;
-    --icon-font-size: 28px;
-    --padding-start: 0;
-    --padding-end: 8px;
-    min-width: 44px;
+  --color: #ffffff;
+  --icon-font-size: 28px;
+  --padding-end: 8px;
+  --padding-start: 0;
+  min-width: 44px;
 }
 
-/* Cambiar los íconos a blancos */
-ion-icon {
-    color: white;
-}
-
+ion-icon,
 ion-buttons {
-    color: white; /* Asegura que los botones de los íconos sean blancos */
+  color: #ffffff;
 }
 
-/* Personalización para el campo de búsqueda (search) */
 .searcho {
-    width: 30%;
-    margin-left: 25%;
+  width: 30%;
+  margin-left: 25%;
 }
 
 .searcho .search {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .searcho .search ion-item {
-    border-radius: 10px;
-    box-shadow: 0px 13px 30px 0px rgba(210, 4, 4, 0.968);
-    padding: 8px;
+  border-radius: 10px;
+  box-shadow: 0 13px 30px rgba(210, 4, 4, 0.968);
+  padding: 8px;
 }
 
 .searcho .search ion-item ion-icon {
-    margin-right: 16px;
+  margin-right: 16px;
 }
 
 .searcho .search ion-item ion-input {
-    padding-left: 10px !important;
-    border-left: 1px solid #F4F4F4;
+  border-left: 1px solid #f4f4f4;
+  padding-left: 10px !important;
 }
 
-/* Media query para pantallas pequeñas */
 @media only screen and (min-width: 1338px) and (max-width: 336px) {
-    .searcho {
-        height: 100%;
-    }
+  .searcho {
+    height: 100%;
+  }
 }

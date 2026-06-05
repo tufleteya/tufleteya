@@ -204,6 +204,14 @@ service cloud.firestore {
       );
     }
 
+    function chatParticipantFromNestedParent(chatPath, chatId) {
+      return signedIn() && (
+        isAdmin() || isSoporte() ||
+        request.auth.uid == get(/databases/$(database)/documents/$(chatPath)/chats/$(chatId)).data.userId ||
+        request.auth.uid == get(/databases/$(database)/documents/$(chatPath)/chats/$(chatId)).data.fleteroId
+      );
+    }
+
     function validReviewPayload() {
       return request.resource.data.userId == request.auth.uid
         && request.resource.data.rating is number
@@ -273,6 +281,24 @@ service cloud.firestore {
       }
     }
 
+    match /{path=**}/chats/{chatId} {
+      allow read: if chatParticipantFromStored();
+      allow create: if chatParticipantFromResource();
+      allow update: if chatParticipantFromStored() || chatParticipantFromResource();
+      allow delete: if isAdmin();
+    }
+
+    match /{chatPath=**}/chats/{chatId}/mensajes/{messageId} {
+      allow read: if chatParticipantFromNestedParent(chatPath, chatId);
+      allow create: if signedIn()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.chatId == chatId
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.senderRole in ['user', 'fletero'];
+      allow update, delete: if isAdmin() || (chatParticipantFromNestedParent(chatPath, chatId) && request.auth.uid == resource.data.senderId);
+    }
+
     match /PedirFlete/{userId} {
       allow read: if signedIn();
       allow create, update: if isAdmin() || isSelf(userId);
@@ -325,12 +351,7 @@ service cloud.firestore {
             && request.resource.data.chatId == chatId
             && request.resource.data.text is string
             && request.resource.data.text.size() > 0
-            && request.resource.data.senderRole in ['user', 'fletero']
-            && (
-              isAdmin() ||
-              request.auth.uid == get(/databases/$(database)/documents/PedirFlete/$(userId)/$(pedidoCollection)/$(pedidoDoc)/chats/$(chatId)).data.userId ||
-              request.auth.uid == get(/databases/$(database)/documents/PedirFlete/$(userId)/$(pedidoCollection)/$(pedidoDoc)/chats/$(chatId)).data.fleteroId
-            );
+            && request.resource.data.senderRole in ['user', 'fletero'];
           allow update, delete: if isAdmin() || (signedIn() && request.auth.uid == resource.data.senderId);
         }
       }
@@ -434,7 +455,7 @@ service cloud.firestore {
 
       match /mensajes/{messageId} {
         allow read: if chatParticipantFromParent(chatId);
-        allow create: if chatParticipantFromParent(chatId)
+        allow create: if signedIn()
           && request.resource.data.senderId == request.auth.uid
           && request.resource.data.chatId == chatId
           && request.resource.data.text is string

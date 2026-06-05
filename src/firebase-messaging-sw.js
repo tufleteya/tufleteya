@@ -3,12 +3,13 @@ importScripts('https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js
 importScripts('https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
-  apiKey: 'REEMPLAZAR_FIREBASE_API_KEY',
-  authDomain: 'REEMPLAZAR_FIREBASE_AUTH_DOMAIN',
-  projectId: 'REEMPLAZAR_FIREBASE_PROJECT_ID',
-  storageBucket: 'REEMPLAZAR_FIREBASE_STORAGE_BUCKET',
-  messagingSenderId: 'REEMPLAZAR_FIREBASE_MESSAGING_SENDER_ID',
-  appId: 'REEMPLAZAR_FIREBASE_APP_ID',
+  apiKey: 'AIzaSyDI1Hv5bQ3KeCgobygHkSPeuFsXDZp3IVo',
+  authDomain: 'tufleteyarg.firebaseapp.com',
+  projectId: 'tufleteyarg',
+  storageBucket: 'tufleteyarg.firebasestorage.app',
+  messagingSenderId: '686053975749',
+  appId: '1:686053975749:web:0172c6aacded8e791232ac',
+  measurementId: 'G-YGX2YDZ5B6',
 });
 
 const messaging = firebase.messaging();

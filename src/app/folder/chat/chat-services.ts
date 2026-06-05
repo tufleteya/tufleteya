@@ -13,7 +13,7 @@ import {
   SupportSenderRole,
 } from '../../folder/models/models';
 import { Observable, of } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators'; // Necesario para adaptar la respuesta de AngularFirestore
+import { map, shareReplay, switchMap, take } from 'rxjs/operators'; // Necesario para adaptar la respuesta de AngularFirestore
 import 'firebase/compat/firestore';
 
 @Injectable({ providedIn: 'root' })
@@ -24,13 +24,17 @@ export class ChatService {
   // Inyectar AngularFirestore en lugar de Firestore (soluciona el NullInjectorError)
   constructor(private firestore: AngularFirestore) {}
 
-getChat(chatId: string): Observable<Chat | undefined> {
-  return this.firestore
-    .collectionGroup<Chat>('chats', ref => ref.where('id', '==', chatId).limit(1))
-    .snapshotChanges()
-    .pipe(
-      map(actions => actions[0] ? this.mapChatAction(actions[0]) : undefined)
-    );
+getChat(chatId: string, participantId?: string): Observable<Chat | undefined> {
+  if (!participantId) {
+    return this.firestore
+      .doc<Chat>(`chats/${chatId}`)
+      .snapshotChanges()
+      .pipe(
+        map(action => action.payload.exists ? this.mapChatAction(action) : undefined)
+      );
+  }
+
+  return this.findChatForParticipant(chatId, participantId);
 }
 
 private buildChatId(userId: string, fleteroId: string, pedidoId: string): string {
@@ -47,7 +51,11 @@ async getOrCreateChat(
   const pedidoId = fleteId;
   const chatId = this.buildChatId(userId, fleteroId, pedidoId);
 
-  const existingPath = await this.resolveChatDocPath(chatId) || await this.resolveChatDocPath(pedidoId);
+  const existingPath =
+    await this.resolveChatDocPath(chatId, userId) ||
+    await this.resolveChatDocPath(chatId, fleteroId) ||
+    await this.resolveChatDocPath(pedidoId, userId) ||
+    await this.resolveChatDocPath(pedidoId, fleteroId);
   if (existingPath) {
     const snap = await this.firestore.doc<Chat>(existingPath).get().toPromise();
     const data = ((snap?.data() || {}) as Partial<Chat>);
@@ -84,8 +92,8 @@ const nuevoChat: Chat = {
 
 
 
-  getMensajes(chatId: string): Observable<Mensaje[]> {
-    return this.getChat(chatId).pipe(
+  getMensajes(chatId: string, participantId?: string): Observable<Mensaje[]> {
+    return this.getChat(chatId, participantId).pipe(
       switchMap((chat) => {
         if (!chat?.path) {
           return of([]);
@@ -109,7 +117,7 @@ async enviarMensaje(
   senderRole: 'user' | 'fletero',
   text: string
 ) {
-  const chatPath = await this.resolveChatDocPath(chatId);
+  const chatPath = await this.resolveChatDocPath(chatId, senderId);
   if (!chatPath) {
     throw new Error(`chat-not-found:${chatId}`);
   }
@@ -129,15 +137,19 @@ async enviarMensaje(
     .collection(`${chatPath}/mensajes`)
     .add(mensaje);
 
-  await this.firestore
-    .doc(chatPath)
-    .set(
-      {
-        lastMessage: text,
-        lastMessageTime: timestamp
-      },
-      { merge: true }
-    );
+  try {
+    await this.firestore
+      .doc(chatPath)
+      .set(
+        {
+          lastMessage: text,
+          lastMessageTime: timestamp
+        },
+        { merge: true }
+      );
+  } catch (error) {
+    console.warn('Mensaje enviado, pero no se pudo actualizar el resumen del chat:', error);
+  }
 }
 
 
@@ -261,17 +273,18 @@ actualizarEstadoFlete(fleteId: string, estado: string) {
 updateChatTyping(
   chatId: string,
   rol: 'Usuario' | 'Fletero',
-  escribiendo: boolean
+  escribiendo: boolean,
+  participantId?: string
 ) {
   const campo =
     rol === 'Usuario'
       ? { 'typing.usuario': escribiendo }
       : { 'typing.fletero': escribiendo };
 
-  return this.resolveChatDocPath(chatId).then((chatPath) =>
-    this.firestore
-      .doc(chatPath || `chats/${chatId}`)
-      .set(campo, { merge: true })
+  return this.resolveChatDocPath(chatId, participantId).then((chatPath) =>
+    chatPath
+      ? this.firestore.doc(chatPath).set(campo, { merge: true })
+      : Promise.reject(new Error(`chat-not-found:${chatId}`))
   );
 }
 getFleteroById(fleteroId: string): Observable<any> {
@@ -460,17 +473,7 @@ private mapChatAction(action: any): Chat {
   };
 }
 
-private async resolveChatDocPath(chatId: string): Promise<string | null> {
-  const groupSnap = await this.firestore
-    .collectionGroup<Chat>('chats', ref => ref.where('id', '==', chatId).limit(1))
-    .get()
-    .toPromise();
-
-  const doc = groupSnap?.docs?.[0];
-  if (doc) {
-    return doc.ref.path;
-  }
-
+private async resolveChatDocPath(chatId: string, participantId?: string): Promise<string | null> {
   try {
     const rootSnap = await this.firestore.doc<Chat>(`chats/${chatId}`).get().toPromise();
     if (rootSnap?.exists) {
@@ -480,7 +483,32 @@ private async resolveChatDocPath(chatId: string): Promise<string | null> {
     console.warn('No se pudo leer el chat raiz, se continua con la busqueda anidada:', error);
   }
 
-  return null;
+  if (!participantId) {
+    return null;
+  }
+
+  const chat = await this.findChatForParticipant(chatId, participantId).pipe(take(1)).toPromise();
+  return chat?.path || null;
+}
+
+private findChatForParticipant(chatId: string, participantId: string): Observable<Chat | undefined> {
+  const byUser$ = this.firestore
+    .collectionGroup<Chat>('chats', ref =>
+      ref.where('id', '==', chatId).where('userId', '==', participantId).limit(1)
+    )
+    .snapshotChanges()
+    .pipe(map(actions => actions[0] ? this.mapChatAction(actions[0]) : undefined));
+
+  const byFletero$ = this.firestore
+    .collectionGroup<Chat>('chats', ref =>
+      ref.where('id', '==', chatId).where('fleteroId', '==', participantId).limit(1)
+    )
+    .snapshotChanges()
+    .pipe(map(actions => actions[0] ? this.mapChatAction(actions[0]) : undefined));
+
+  return byUser$.pipe(
+    switchMap(chat => chat ? of(chat) : byFletero$)
+  );
 }
 
 private getDocIdFromPath(path: string): string {

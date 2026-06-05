@@ -1,6 +1,6 @@
 {
   "/api/functions/*": {
-    "target": "https://us-central1-fletesya-c31eb.cloudfunctions.net",
+    "target": "https://us-central1-tufleteyarg.cloudfunctions.net",
     "secure": true,
     "changeOrigin": true,
     "pathRewrite": {
